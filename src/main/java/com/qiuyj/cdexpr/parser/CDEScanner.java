@@ -1,5 +1,7 @@
 package com.qiuyj.cdexpr.parser;
 
+import com.qiuyj.cdexpr.utils.InternalCharStream;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

@@ -1,5 +1,6 @@
 package com.qiuyj.cdexpr.parser;
 
+import com.qiuyj.cdexpr.utils.InternalCharStream;
 import com.qiuyj.cdexpr.utils.ParserUtils;
 
 import static com.qiuyj.cdexpr.utils.ParserUtils.lexError;
