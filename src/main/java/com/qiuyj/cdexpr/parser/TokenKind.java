@@ -13,6 +13,8 @@ public enum TokenKind {
     ASSIGN("="),
     QMARK("?"),
     COLON(":"),
+
+    UNDEFINED,
     ;
 
     private final String name;

@@ -6,7 +6,7 @@ package com.qiuyj.cdexpr.parser;
  */
 public class Token {
 
-    public static final Token DUMMY = new Token(null, -1, -1);
+    public static final Token DUMMY = new Token(TokenKind.UNDEFINED, -1, -1);
 
     private final TokenKind kind;
 
