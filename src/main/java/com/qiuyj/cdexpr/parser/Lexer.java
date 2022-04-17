@@ -1,6 +1,7 @@
 package com.qiuyj.cdexpr.parser;
 
 /**
+ * 词法解析器
  * @author qiuyj
  * @since 2022-04-17
  */

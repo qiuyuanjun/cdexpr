@@ -26,6 +26,9 @@ public record CDETokenizer(InternalCharStream source) {
             switch (c) {
                 case Character.MIN_VALUE:
                     return null;
+                case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+                    token = tryLexNumericLiteral(startPos);
+                    break;
                 case ':':
                     token = new Token(TokenKind.COLON, startPos, pos());
                     break;
@@ -38,8 +41,11 @@ public record CDETokenizer(InternalCharStream source) {
                 case '=':
                     token = new Token(nextCharIs('=') ? TokenKind.EQ : TokenKind.ASSIGN, startPos, pos());
                     break;
-                case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-                    token = tryLexNumericLiteral(startPos);
+                case '+':
+                    token = new Token(nextCharIs('+') ? TokenKind.INC : TokenKind.PLUS, startPos, pos());
+                    break;
+                case '-':
+                    token = new Token(nextCharIs('-') ? TokenKind.DEC : TokenKind.MINUS, startPos, pos());
                     break;
                 default:
                     lexError("unexpect char '" + c + "'", startPos);
