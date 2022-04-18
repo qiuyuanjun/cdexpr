@@ -57,34 +57,36 @@ public record CDETokenizer(InternalCharStream source) {
     }
 
     private Token tryLexNumericLiteral(int startPos) {
-        char c = getChar();
-        char prevChar = source.fastPrevChar();
-        boolean binary = prevChar == '0' && (c == 'b' || c == 'B');
-        boolean hex = prevChar == '0' && (c == 'x' || c == 'X');
-        boolean octal = prevChar == '0' && Character.isDigit(c);
-        if (hex || binary) {
-            c = getChar();
+        char c = getChar(),
+             prevChar = source.fastPrevChar();
+        boolean binary = false,
+                hex = false,
+                octal = false,
+                isLong = false,
+                isFloat = false,
+                isDouble = false,
+                maybeDouble = false;
+        if (prevChar == '0') {
+            binary = c == 'b' || c == 'B';
+            hex = c == 'x' || c == 'X';
+            octal = Character.isDigit(c);
+            // 如果是2进制或者16进制，那么对应的b和x已经读取并解析，因此需要继续读取下一个字符供后续使用
+            if (hex || binary) {
+                c = getChar();
+            }
         }
-        boolean isLong = false;
-        boolean isFloat = false;
-        boolean isDouble = false;
-        boolean doubleEndFlag = false;
-        for (; ; c = getChar()) {
-            if (Character.isDigit(c)) {
-                continue;
-            }
-            if (c == '.' && Character.isDigit(source.fastPrevChar())) {
-                isDouble = true;
-                continue;
-            }
+        for (;; c = getChar()) {
             switch (c) {
+                case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                    continue;
+                }
                 case 'L', 'l' -> {
                     isLong = true;
                     continue;
                 }
                 case 'D', 'd' -> {
                     isDouble = !hex;
-                    doubleEndFlag = true;
+                    maybeDouble = true;
                     continue;
                 }
                 case 'F', 'f' -> {
@@ -97,6 +99,12 @@ public record CDETokenizer(InternalCharStream source) {
                     }
                     continue;
                 }
+                case '.' -> {
+                    if (Character.isDigit(source.fastPrevChar())) {
+                        isDouble = true;
+                        continue;
+                    }
+                }
             }
             break;
         }
@@ -107,7 +115,7 @@ public record CDETokenizer(InternalCharStream source) {
             if (hex || binary) {
                 start += 2;
             }
-            if (isLong || isFloat || (isDouble && doubleEndFlag)) {
+            if (isLong || isFloat || (isDouble && maybeDouble)) {
                 end--;
             }
             return new Token.NumericToken(ParserUtils.parseNumber(source.fastSubstring(start, end), binary, octal, hex, isLong, isDouble, isFloat), startPos, pos() - 1);
@@ -116,7 +124,7 @@ public record CDETokenizer(InternalCharStream source) {
     }
 
     private Token tryLexStringLiteral(int startPos) {
-        for (char c = getChar(); ; c = getChar()) {
+        for (char c = getChar();; c = getChar()) {
             if (c == '\'') {
                 // 判断上一个字符是否是转义符
                 char prev = source.fastPrevChar();

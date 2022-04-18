@@ -42,10 +42,10 @@ public abstract class ParserUtils {
             if (isLong && (endChar != 'l' && endChar != 'L')) {
                 lexError("long numeric literal not ends with 'L' or 'l'", pos);
             }
-            else if (isDouble && (endChar != 'd' && endChar != 'D')) {
+            if (isDouble && (endChar != 'd' && endChar != 'D')) {
                 lexError("double numeric literal not ends with 'D' or 'd'", pos);
             }
-            else if (isFloat && (endChar != 'f' && endChar != 'F')) {
+            if (isFloat && (endChar != 'f' && endChar != 'F')) {
                 lexError("float numeric literal not ends with 'F' or 'f'", pos);
             }
         }
