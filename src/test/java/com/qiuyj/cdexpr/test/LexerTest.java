@@ -17,7 +17,9 @@ public class LexerTest {
 
     @Test
     public void test_CDEScanner() {
-        String expr = "${CITY_CODE} == '110100' ? 'Y' : 'N'";
+        int a = 0xfa199652;
+        System.out.println(a);
+        String expr = "${CITY_CODE} == '110100' ? 0x7a19965f : 0.99821";
         Lexer lexer = new CDEScanner(expr);
         Token token;
         do {
@@ -26,6 +28,6 @@ public class LexerTest {
         }
         while (Objects.nonNull(token));
         token = lexer.prevToken();
-        Assertions.assertEquals(TokenKind.STRING_LITERAL, token.getKind());
+        Assertions.assertEquals(TokenKind.NUMERIC_LITERAL, token.getKind());
     }
 }

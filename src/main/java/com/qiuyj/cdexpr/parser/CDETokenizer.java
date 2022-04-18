@@ -3,6 +3,8 @@ package com.qiuyj.cdexpr.parser;
 import com.qiuyj.cdexpr.utils.InternalCharStream;
 import com.qiuyj.cdexpr.utils.ParserUtils;
 
+import java.util.function.Function;
+
 import static com.qiuyj.cdexpr.utils.ParserUtils.lexError;
 
 /**
@@ -20,14 +22,14 @@ public record CDETokenizer(InternalCharStream source) {
         int startPos = pos();
         Token token = null;
         if (ParserUtils.isIdentifierStart(c)) {
-            token = tryLexIdentifier(startPos);
+            token = callFunctionAndFallbackOneChar(startPos, this::tryLexIdentifier);
         }
         else {
             switch (c) {
                 case Character.MIN_VALUE:
                     return null;
                 case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-                    token = tryLexNumericLiteral(startPos);
+                    token = callFunctionAndFallbackOneChar(startPos, this::tryLexNumericLiteral);
                     break;
                 case ':':
                     token = new Token(TokenKind.COLON, startPos, pos());
@@ -202,6 +204,19 @@ public record CDETokenizer(InternalCharStream source) {
      */
     private int pos() {
         return source.currentPosition();
+    }
+
+    /**
+     * 执行对应的函数，然后将字符流的位置回退一个字符
+     * @param startPos 开始位置
+     * @param func 要执行的函数
+     * @return 函数执行的结果
+     * @param <R> 函数返回值泛型对象
+     */
+    private <R> R callFunctionAndFallbackOneChar(int startPos, Function<Integer, R> func) {
+        final R ret = func.apply(startPos);
+        source.fastSetPosition(pos() - 1);
+        return ret;
     }
 
 }
