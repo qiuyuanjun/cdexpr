@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public abstract class InternalCharStream extends InputStream {
 
-    static final boolean JAVA_VERSION_UP_8;
+    static final boolean JAVA_VERSION_GT_8;
     static {
         boolean javaVersion8 = true;
         if (!System.getProperty("java.version", "1.8").startsWith("1.8")) {
@@ -27,7 +27,7 @@ public abstract class InternalCharStream extends InputStream {
                 // ignore
             }
         }
-        JAVA_VERSION_UP_8 = !javaVersion8;
+        JAVA_VERSION_GT_8 = !javaVersion8;
     }
 
     private static volatile InternalCharStream theEmptyInstance;
@@ -120,8 +120,8 @@ public abstract class InternalCharStream extends InputStream {
     }
 
     private static InternalCharStream chooseBetterVersion(String s) {
-        return JAVA_VERSION_UP_8
-                ? new InternalCharStreamVersionUp8(s)
+        return JAVA_VERSION_GT_8
+                ? new InternalCharStreamVersionGT8(s)
                 : new InternalCharStreamVersion8(s);
     }
 
