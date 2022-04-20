@@ -1,5 +1,7 @@
 package com.qiuyj.cdexpr.test;
 
+import com.qiuyj.cdexpr.func.internal.prototype.NowDateFunctionPrototype;
+import com.qiuyj.cdexpr.func.internal.prototype.NowDateTimeFunctionPrototype;
 import com.qiuyj.cdexpr.parser.CDEScanner;
 import com.qiuyj.cdexpr.parser.Lexer;
 import com.qiuyj.cdexpr.parser.Token;
@@ -28,5 +30,13 @@ public class LexerTest {
         lexer = new CDEScanner(expr);
         tokenStream = lexer.nextAllTokens();
         Assertions.assertEquals(5, tokenStream.size());
+
+        expr = "${CITY_PREFIX} + json_get(${INPUT_CONTENT}, 'busiEntityCity')";
+        lexer = new CDEScanner(expr);
+        tokenStream = lexer.nextAllTokens();
+        Assertions.assertEquals(8, tokenStream.size());
+
+        new NowDateTimeFunctionPrototype();
+        new NowDateFunctionPrototype();
     }
 }

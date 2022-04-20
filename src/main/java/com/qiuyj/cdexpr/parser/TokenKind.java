@@ -13,10 +13,13 @@ public enum TokenKind {
     ASSIGN("="),
     QMARK("?"),
     COLON(":"),
+    COMMA(","),
     PLUS("+"),
     MINUS("-"),
     INC("++"),
     DEC("--"),
+    LPAREN("("),
+    RPAREN(")"),
 
     UNDEFINED,
     ;

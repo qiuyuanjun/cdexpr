@@ -5,4 +5,5 @@
 module qiuyj.cdexpr {
 
     exports com.qiuyj.cdexpr;
+    exports com.qiuyj.cdexpr.func;
 }

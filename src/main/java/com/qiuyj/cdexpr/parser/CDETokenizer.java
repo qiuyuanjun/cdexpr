@@ -31,11 +31,20 @@ public record CDETokenizer(InternalCharStream source) {
                 case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
                     token = callFunctionAndFallbackOneChar(startPos, this::tryLexNumericLiteral);
                     break;
+                case ',':
+                    token = new Token(TokenKind.COMMA, startPos, startPos);
+                    break;
                 case ':':
-                    token = new Token(TokenKind.COLON, startPos, pos());
+                    token = new Token(TokenKind.COLON, startPos, startPos);
                     break;
                 case '?':
-                    token = new Token(TokenKind.QMARK, startPos, pos());
+                    token = new Token(TokenKind.QMARK, startPos, startPos);
+                    break;
+                case '(':
+                    token = new Token(TokenKind.LPAREN, startPos, startPos);
+                    break;
+                case ')':
+                    token = new Token(TokenKind.RPAREN, startPos, startPos);
                     break;
                 case '\'':
                     token = tryLexStringLiteral(startPos);
