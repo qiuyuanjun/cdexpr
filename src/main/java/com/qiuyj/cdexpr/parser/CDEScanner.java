@@ -3,10 +3,12 @@ package com.qiuyj.cdexpr.parser;
 import com.qiuyj.cdexpr.utils.InternalCharStream;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 /**
+ * 默认的词法解析器，会根据输入的字符流，解析成对应的token流
  * @author qiuyj
  * @since 2022-04-17
  */
@@ -44,6 +46,19 @@ public class CDEScanner implements Lexer {
 
     @Override
     public Token prevToken() {
-        return tokenStream.isEmpty() ? null : tokenStream.get(tokenStream.size() - 1);
+        return tokenStream.isEmpty()
+                ? null
+                : tokenStream.get(tokenStream.size() - 1);
+    }
+
+    @Override
+    public List<Token> nextAllTokens() {
+        if (tokenizer.source().remaining()) {
+            do {
+                nextToken();
+            }
+            while (Objects.nonNull(token()));
+        }
+        return Collections.unmodifiableList(tokenStream);
     }
 }

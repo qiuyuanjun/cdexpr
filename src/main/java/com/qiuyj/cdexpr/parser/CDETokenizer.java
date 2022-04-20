@@ -109,18 +109,9 @@ public record CDETokenizer(InternalCharStream source) {
             break;
         }
         ParserUtils.validNumericEndChar(source.fastPrevChar(), pos(), isLong, isDouble, isFloat);
-        if (binary || octal || hex || isLong || isDouble || isFloat) {
-            int start = startPos;
-            int end = pos();
-            if (hex || binary) {
-                start += 2;
-            }
-            if (isLong || isFloat || (isDouble && maybeDouble)) {
-                end--;
-            }
-            return new Token.NumericToken(ParserUtils.parseNumber(source.fastSubstring(start, end), binary, octal, hex, isLong, isDouble, isFloat), startPos, pos() - 1);
-        }
-        return new Token.NumericToken(Integer.parseInt(source.fastSubstring(startPos, pos())), startPos, pos() - 1);
+        return binary || octal || hex || isLong || isDouble || isFloat
+                ? new Token.NumericToken(ParserUtils.parseNumber(source.fastSubstring(hex || binary ? startPos + 2 : startPos, isLong || isFloat || (maybeDouble && isDouble) ? pos() - 1 : pos()), binary, octal, hex, isLong, isDouble, isFloat), startPos, pos() - 1)
+                : new Token.NumericToken(Integer.parseInt(source.fastSubstring(startPos, pos())), startPos, pos() - 1);
     }
 
     private Token tryLexStringLiteral(int startPos) {
@@ -216,13 +207,14 @@ public record CDETokenizer(InternalCharStream source) {
 
     /**
      * 执行对应的函数，然后将字符流的位置回退一个字符
-     * @param startPos 开始位置
+     * @param funcArgs 要执行的函数的参数
      * @param func 要执行的函数
      * @return 函数执行的结果
-     * @param <R> 函数返回值泛型对象
+     * @param <R> 函数返回值类型
+     * @param <T> 要执行的函数参数类型
      */
-    private <R> R callFunctionAndFallbackOneChar(int startPos, Function<Integer, R> func) {
-        final R ret = func.apply(startPos);
+    private <R, T> R callFunctionAndFallbackOneChar(T funcArgs, Function<T, R> func) {
+        final R ret = func.apply(funcArgs);
         source.fastSetPosition(pos() - 1);
         return ret;
     }

@@ -1,5 +1,7 @@
 package com.qiuyj.cdexpr.parser;
 
+import java.util.List;
+
 /**
  * 词法解析器
  * @author qiuyj
@@ -19,4 +21,10 @@ public interface Lexer {
     Token token();
 
     Token prevToken();
+
+    /**
+     * 解析所有的token，并返回一个{@code List}集合
+     * @return 解析之后的token集合
+     */
+    List<Token> nextAllTokens();
 }

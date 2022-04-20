@@ -7,7 +7,7 @@ import com.qiuyj.cdexpr.parser.TokenKind;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  * @author qiuyj
@@ -19,13 +19,14 @@ public class LexerTest {
     public void test_CDEScanner() {
         String expr = "${CITY_CODE} == '110100' ? 0x7a19965f : 0.99821";
         Lexer lexer = new CDEScanner(expr);
-        Token token;
-        do {
-            lexer.nextToken();
-            token = lexer.token();
-        }
-        while (Objects.nonNull(token));
-        token = lexer.prevToken();
-        Assertions.assertEquals(TokenKind.NUMERIC_LITERAL, token.getKind());
+        lexer.nextToken();
+        List<Token> tokenStream = lexer.nextAllTokens();
+        Assertions.assertEquals(7, tokenStream.size());
+        Assertions.assertEquals(TokenKind.NUMERIC_LITERAL, tokenStream.get(tokenStream.size() - 1).getKind());
+
+        expr = "5 - 7 + 2";
+        lexer = new CDEScanner(expr);
+        tokenStream = lexer.nextAllTokens();
+        Assertions.assertEquals(5, tokenStream.size());
     }
 }

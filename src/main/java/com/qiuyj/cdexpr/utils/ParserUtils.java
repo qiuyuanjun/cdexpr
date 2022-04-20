@@ -55,6 +55,10 @@ public abstract class ParserUtils {
         throw new ParseError("Lex error, " + message, pos);
     }
 
+    public static void parseError(String message, int start, int end) {
+        throw new ParseError("Parse error, " + message, start, end);
+    }
+
     public static Number parseNumber(String s, boolean binary, boolean octal, boolean hex, boolean isLong, boolean isDouble, boolean isFloat) {
         if (binary || octal || hex) {
             return Integer.parseInt(s, binary ? 2 : (octal ? 8 : 16));

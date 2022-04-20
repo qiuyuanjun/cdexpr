@@ -1,5 +1,6 @@
 package com.qiuyj.cdexpr.utils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
@@ -49,6 +50,11 @@ public abstract class InternalCharStream extends InputStream {
     @Override
     public int read() {
         return get();
+    }
+
+    @Override
+    public void close() {
+        fastSetPosition(length);
     }
 
     /**

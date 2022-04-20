@@ -9,6 +9,10 @@ import com.qiuyj.cdexpr.ExpressionException;
 public class ParseError extends ExpressionException {
 
     public ParseError(String message, int pos) {
-        super(message + " @pos[" + pos + "]");
+        super(message + " @(pos: " + pos + ")");
+    }
+
+    public ParseError(String message, int startPos, int endPos) {
+        super(message + " @(startPos: " + startPos + ", endPos: " + endPos + ")");
     }
 }
