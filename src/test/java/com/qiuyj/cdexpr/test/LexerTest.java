@@ -1,7 +1,6 @@
 package com.qiuyj.cdexpr.test;
 
-import com.qiuyj.cdexpr.func.internal.prototype.NowDateFunctionPrototype;
-import com.qiuyj.cdexpr.func.internal.prototype.NowDateTimeFunctionPrototype;
+import com.qiuyj.cdexpr.func.FunctionExecutor;
 import com.qiuyj.cdexpr.parser.CDEScanner;
 import com.qiuyj.cdexpr.parser.Lexer;
 import com.qiuyj.cdexpr.parser.Token;
@@ -9,6 +8,7 @@ import com.qiuyj.cdexpr.parser.TokenKind;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,7 +36,6 @@ public class LexerTest {
         tokenStream = lexer.nextAllTokens();
         Assertions.assertEquals(8, tokenStream.size());
 
-        new NowDateTimeFunctionPrototype();
-        new NowDateFunctionPrototype();
+        System.out.println(FunctionExecutor.defaultExecutor().execute("DateFormat", new Date(), "yyyy-MM-dd HH:mm:ss"));
     }
 }

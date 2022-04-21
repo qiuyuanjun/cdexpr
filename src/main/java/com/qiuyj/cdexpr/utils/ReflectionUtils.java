@@ -1,6 +1,7 @@
 package com.qiuyj.cdexpr.utils;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * 反射工具类
@@ -15,7 +16,7 @@ public abstract class ReflectionUtils {
 
     public static Method getMethod(Class<?> klass, String methodName, Class<?>... parameterTypes) {
         Class<?> currentKlass = klass;
-        do {
+        while (Objects.nonNull(currentKlass) && currentKlass != Object.class) {
             try {
                 return currentKlass.getDeclaredMethod(methodName, parameterTypes);
             }
@@ -24,7 +25,6 @@ public abstract class ReflectionUtils {
             }
             currentKlass = currentKlass.getSuperclass();
         }
-        while (currentKlass != Object.class);
         throw new IllegalArgumentException("Can not find method: " + methodName + " in class: " + klass.getName());
     }
 }

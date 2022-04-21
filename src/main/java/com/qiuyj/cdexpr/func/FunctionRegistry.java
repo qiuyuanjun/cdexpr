@@ -8,4 +8,6 @@ package com.qiuyj.cdexpr.func;
 public interface FunctionRegistry {
 
     void registerFunction(FunctionPrototype functionPrototype);
+
+    FunctionPrototype getByName(String functionName);
 }

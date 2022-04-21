@@ -1,5 +1,6 @@
 package com.qiuyj.cdexpr.func;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
@@ -50,7 +51,7 @@ public abstract class FunctionPrototype {
      * 获取该函数的签名
      * @return 函数签名
      */
-    public String signature() {
+    public final String signature() {
         if (Objects.isNull(signature)) {
             synchronized (this) {
                 if (Objects.isNull(signature)) {
@@ -72,5 +73,22 @@ public abstract class FunctionPrototype {
 
     public Method getTargetMethod() {
         return targetMethod;
+    }
+
+    /**
+     * 根据给定的参数执行目标方法
+     * @param parameters 方法入参
+     * @return 执行结果
+     */
+    public Object invoke(Object... parameters) {
+        try {
+            return targetMethod.invoke(null, parameters);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        catch (InvocationTargetException e) {
+            throw new IllegalStateException("Invoke function " + name() + " error", e.getTargetException());
+        }
     }
 }
