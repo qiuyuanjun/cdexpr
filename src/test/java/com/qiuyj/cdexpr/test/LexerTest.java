@@ -5,10 +5,10 @@ import com.qiuyj.cdexpr.parser.CDEScanner;
 import com.qiuyj.cdexpr.parser.Lexer;
 import com.qiuyj.cdexpr.parser.Token;
 import com.qiuyj.cdexpr.parser.TokenKind;
+import com.qiuyj.cdexpr.utils.ClassUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,5 +37,8 @@ public class LexerTest {
         Assertions.assertEquals(8, tokenStream.size());
 
         System.out.println(FunctionExecutorChain.callFunction("DateFormat", FunctionExecutorChain.callFunction("NowDateTime"), "yyyy-MM-dd HH:mm:ss"));
+
+        Assertions.assertTrue(ClassUtils.parameterTypeMatch(int.class, 5));
+        Assertions.assertTrue(ClassUtils.parameterTypeMatch(CharSequence.class, "abc"));
     }
 }
