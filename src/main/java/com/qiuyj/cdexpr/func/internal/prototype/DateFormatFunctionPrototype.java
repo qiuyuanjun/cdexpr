@@ -1,26 +1,16 @@
 package com.qiuyj.cdexpr.func.internal.prototype;
 
-import com.qiuyj.cdexpr.func.FunctionPrototype;
+import com.qiuyj.cdexpr.func.internal.SystemFunctionPrototype;
 import com.qiuyj.cdexpr.utils.FunctionUtils;
-import com.qiuyj.cdexpr.utils.ReflectionUtils;
 
 /**
- * 时间日期格式化函数原型，{@link FunctionUtils#dateFormat(Object, String)}
+ * {@code DateFormat}函数用于时间日期格式化函数，{@link FunctionUtils#dateFormat(Object, String)}
  * @author qiuyj
  * @since 2022-04-21
  */
-public class DateFormatFunctionPrototype extends FunctionPrototype {
+public class DateFormatFunctionPrototype extends SystemFunctionPrototype {
 
     private static final String NAME = "DateFormat";
-
-    private static final Class<?>[] PARAMETER_TYPES = {
-            Object.class,
-            String.class
-    };
-
-    public DateFormatFunctionPrototype() {
-        super(ReflectionUtils.getMethod(FunctionUtils.class, "dateFormat", PARAMETER_TYPES));
-    }
 
     @Override
     public String name() {
@@ -28,7 +18,8 @@ public class DateFormatFunctionPrototype extends FunctionPrototype {
     }
 
     @Override
-    public Class<?>[] parameterTypes() {
-        return PARAMETER_TYPES;
+    public Object call(Object... args) {
+        return FunctionUtils.dateFormat(checkTypeAndGetFromInvocation(0, Object.class, args),
+                checkTypeAndGetFromInvocation(1, String.class, args));
     }
 }

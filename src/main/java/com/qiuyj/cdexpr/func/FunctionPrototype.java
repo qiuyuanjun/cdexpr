@@ -1,94 +1,25 @@
 package com.qiuyj.cdexpr.func;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Objects;
-import java.util.StringJoiner;
-
 /**
  * 函数原型抽象接口
  * @author qiuyj
  * @since 2022-04-20
  */
-public abstract class FunctionPrototype {
+public interface FunctionPrototype {
 
-    public static final Class<?>[] NO_ARGS = new Class<?>[0];
-
-    private String signature;
+    Class<?>[] ZERO_PARAMETER = new Class<?>[0];
 
     /**
-     * 实际要执行的方法的{@code Method}对象
-     * 必须是静态方法
-     */
-    private final Method targetMethod;
-
-    protected FunctionPrototype(Method targetMethod) {
-        this.targetMethod = Objects.requireNonNull(targetMethod);
-        if (!Modifier.isStatic(targetMethod.getModifiers())) {
-            throw new IllegalStateException("The method must be static!");
-        }
-        if (!targetMethod.trySetAccessible()) {
-            throw new IllegalStateException("Method is not executable!");
-        }
-    }
-
-    /**
-     * 返回该原型对应的函数名称
+     * 对应的函数的名称
      * @return 函数名称
      */
-    public abstract String name();
+    String name();
 
     /**
-     * 返回该原型对应的函数的参数的类型
-     * @return 函数参数的类型
+     * 函数参数类型
+     * @return 函数参数类型
      */
-    public Class<?>[] parameterTypes() {
-        return NO_ARGS;
-    }
-
-    /**
-     * 获取该函数的签名
-     * @return 函数签名
-     */
-    public final String signature() {
-        if (Objects.isNull(signature)) {
-            synchronized (this) {
-                if (Objects.isNull(signature)) {
-                    StringBuilder sb = new StringBuilder(name());
-                    Class<?>[] parameterTypes = parameterTypes();
-                    StringJoiner joiner = new StringJoiner(",", "(", ")");
-                    if (Objects.nonNull(parameterTypes) && parameterTypes.length > 0) {
-                        for (Class<?> parameterType : parameterTypes) {
-                            joiner.add(parameterType.descriptorString());
-                        }
-                    }
-                    sb.append(joiner);
-                    signature = sb.toString();
-                }
-            }
-        }
-        return signature;
-    }
-
-    public Method getTargetMethod() {
-        return targetMethod;
-    }
-
-    /**
-     * 根据给定的参数执行目标方法
-     * @param parameters 方法入参
-     * @return 执行结果
-     */
-    public Object invoke(Object... parameters) {
-        try {
-            return targetMethod.invoke(null, parameters);
-        }
-        catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        catch (InvocationTargetException e) {
-            throw new IllegalStateException("Invoke function " + name() + " error", e.getTargetException());
-        }
+    default Class<?>[] parameterTypes() {
+        return ZERO_PARAMETER;
     }
 }

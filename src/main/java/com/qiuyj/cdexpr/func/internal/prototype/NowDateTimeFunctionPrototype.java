@@ -1,7 +1,6 @@
 package com.qiuyj.cdexpr.func.internal.prototype;
 
-import com.qiuyj.cdexpr.func.FunctionPrototype;
-import com.qiuyj.cdexpr.utils.ReflectionUtils;
+import com.qiuyj.cdexpr.func.internal.SystemFunctionPrototype;
 
 import java.time.LocalDateTime;
 
@@ -10,16 +9,17 @@ import java.time.LocalDateTime;
  * @author qiuyj
  * @since 2022-04-20
  */
-public class NowDateTimeFunctionPrototype extends FunctionPrototype {
+public class NowDateTimeFunctionPrototype extends SystemFunctionPrototype {
 
     private static final String NAME = "NowDateTime";
-
-    public NowDateTimeFunctionPrototype() {
-        super(ReflectionUtils.getMethod(LocalDateTime.class, "now"));
-    }
 
     @Override
     public String name() {
         return NAME;
+    }
+
+    @Override
+    public Object call(Object... args) {
+        return LocalDateTime.now();
     }
 }

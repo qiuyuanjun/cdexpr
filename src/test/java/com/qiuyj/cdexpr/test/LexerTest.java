@@ -1,6 +1,6 @@
 package com.qiuyj.cdexpr.test;
 
-import com.qiuyj.cdexpr.func.FunctionExecutor;
+import com.qiuyj.cdexpr.func.FunctionExecutorChain;
 import com.qiuyj.cdexpr.parser.CDEScanner;
 import com.qiuyj.cdexpr.parser.Lexer;
 import com.qiuyj.cdexpr.parser.Token;
@@ -36,6 +36,6 @@ public class LexerTest {
         tokenStream = lexer.nextAllTokens();
         Assertions.assertEquals(8, tokenStream.size());
 
-        System.out.println(FunctionExecutor.defaultExecutor().execute("DateFormat", new Date(), "yyyy-MM-dd HH:mm:ss"));
+        System.out.println(FunctionExecutorChain.callFunction("DateFormat", FunctionExecutorChain.callFunction("NowDateTime"), "yyyy-MM-dd HH:mm:ss"));
     }
 }
