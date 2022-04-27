@@ -10,7 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author qiuyj
  * @since 2022-04-21
  */
-public class InvocableFunctionExecutor extends AbstractFunctionExecutor<InvocableFunctionPrototype> {
+public class InvocableFunctionExecutor extends AbstractGenericSupportFunctionExecutor<InvocableFunctionPrototype> {
 
     /**
      * 当前函数执行器所注册的所有函数原型
@@ -19,10 +19,11 @@ public class InvocableFunctionExecutor extends AbstractFunctionExecutor<Invocabl
     private static final Set<String> FUNCTION_SIGNATURES = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @Override
-    public InvocableFunctionPrototype getFunctionPrototype(String functionName, Object... parameters) {
+    public FunctionPrototype getFunctionPrototype(String functionName, Object... parameters) {
         List<InvocableFunctionPrototype> functions = FUNCTIONS.get(functionName);
-        if (Objects.nonNull(functions)) {
-            if (functions.size() == 1) {
+        int size;
+        if (Objects.nonNull(functions) && (size = functions.size()) > 0) {
+            if (size == 1) {
                 return functions.get(0);
             }
             // 有多个同名的函数，那么需要根据参数类型确定

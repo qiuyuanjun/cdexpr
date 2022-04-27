@@ -19,7 +19,7 @@ public class DateFormatFunctionPrototype extends SystemFunctionPrototype {
 
     @Override
     public Object call(Object... args) {
-        return FunctionUtils.dateFormat(checkTypeAndGetFromInvocation(0, Object.class, args),
-                checkTypeAndGetFromInvocation(1, String.class, args));
+        return FunctionUtils.dateFormat(checkTypeAndGetFromArgs(0, Object.class, args),
+                checkTypeAndGetFromArgs(1, String.class, args));
     }
 }

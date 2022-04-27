@@ -17,16 +17,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @SuppressWarnings("unchecked")
 public class FunctionExecutorChain {
 
-    private static final List<FunctionExecutor<? extends FunctionPrototype>> FUNCTION_EXECUTORS;
-    private static final Set<Class<FunctionExecutor<? extends FunctionPrototype>>> EXISTED_FUNCTION_EXECUTORS;
+    private static final List<FunctionExecutor> FUNCTION_EXECUTORS = new CopyOnWriteArrayList<>();
+    private static final Set<Class<FunctionExecutor>> EXISTED_FUNCTION_EXECUTORS =
+            Collections.newSetFromMap(new ConcurrentHashMap<>());
     static {
-        EXISTED_FUNCTION_EXECUTORS = Collections.newSetFromMap(new ConcurrentHashMap<>());
-        FUNCTION_EXECUTORS = new CopyOnWriteArrayList<>(List.of(new SystemFunctionExecutor(), new InvocableFunctionExecutor()));
-        Class<FunctionExecutor<? extends FunctionPrototype>> klass;
-        for (FunctionExecutor<? extends FunctionPrototype> executor : FUNCTION_EXECUTORS) {
-            klass = (Class<FunctionExecutor<? extends FunctionPrototype>>) executor.getClass();
-            EXISTED_FUNCTION_EXECUTORS.add(klass);
-        }
+        List.of(new SystemFunctionExecutor(), new InvocableFunctionExecutor())
+                .forEach(FunctionExecutorChain::addFunctionExecutor);
     }
 
     /**
@@ -36,7 +32,7 @@ public class FunctionExecutorChain {
      * @return 函数执行结果
      */
     public static Object callFunction(String functionName, Object... args) {
-        for (FunctionExecutor<?> executor : FUNCTION_EXECUTORS) {
+        for (FunctionExecutor executor : FUNCTION_EXECUTORS) {
             FunctionPrototype funcProto = executor.getFunctionPrototype(functionName, args);
             if (Objects.nonNull(funcProto)) {
                 return executor.execute(funcProto, args);
@@ -49,10 +45,10 @@ public class FunctionExecutorChain {
      * 新增{@code FunctionExecutor}函数执行器
      * @param functionExecutor 要新增的函数执行器
      */
-    public static void addFunctionExecutor(FunctionExecutor<? extends FunctionPrototype> functionExecutor) {
+    public static void addFunctionExecutor(FunctionExecutor functionExecutor) {
         Objects.requireNonNull(functionExecutor);
-        Class<FunctionExecutor<? extends FunctionPrototype>> klass =
-                (Class<FunctionExecutor<? extends FunctionPrototype>>) functionExecutor.getClass();
+        Class<FunctionExecutor> klass =
+                (Class<FunctionExecutor>) functionExecutor.getClass();
         if (EXISTED_FUNCTION_EXECUTORS.add(klass)) {
             FUNCTION_EXECUTORS.add(functionExecutor);
         }

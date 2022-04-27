@@ -1,5 +1,6 @@
 package com.qiuyj.cdexpr.test;
 
+import com.qiuyj.cdexpr.func.FunctionExecutor;
 import com.qiuyj.cdexpr.func.FunctionExecutorChain;
 import com.qiuyj.cdexpr.parser.CDEScanner;
 import com.qiuyj.cdexpr.parser.Lexer;
@@ -37,6 +38,8 @@ public class LexerTest {
         Assertions.assertEquals(8, tokenStream.size());
 
         System.out.println(FunctionExecutorChain.callFunction("DateFormat", FunctionExecutorChain.callFunction("NowDateTime"), "yyyy-MM-dd HH:mm:ss"));
+        System.out.println(FunctionExecutorChain.callFunction("FirstNotEmptyString", null, "", "abc"));
+
 
         Assertions.assertTrue(ClassUtils.parameterTypeMatch(int.class, 5));
         Assertions.assertTrue(ClassUtils.parameterTypeMatch(CharSequence.class, "abc"));

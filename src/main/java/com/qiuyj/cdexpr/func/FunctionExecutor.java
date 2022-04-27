@@ -5,7 +5,7 @@ package com.qiuyj.cdexpr.func;
  * @author qiuyj
  * @since 2022-04-21
  */
-public interface FunctionExecutor<T extends FunctionPrototype> {
+public interface FunctionExecutor {
 
     /**
      * 执行给定的函数名对应的函数，该方法只能执行该函数名唯一的函数，如果对应的有多个函数名（函数参数不同），会抛出异常
@@ -21,5 +21,5 @@ public interface FunctionExecutor<T extends FunctionPrototype> {
      * @param parameters 函数参数
      * @return 对应的函数原型
      */
-    T getFunctionPrototype(String functionName, Object... parameters);
+    FunctionPrototype getFunctionPrototype(String functionName, Object... parameters);
 }

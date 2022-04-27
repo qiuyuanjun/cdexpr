@@ -1,6 +1,8 @@
 package com.qiuyj.cdexpr.utils;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -69,5 +71,18 @@ public abstract class ClassUtils {
             signature.append(parameter);
         }
         return signature.toString();
+    }
+
+    public static Class<?> getGenericActualType(Class<?> genericClass, int index) {
+        if (Objects.isNull(genericClass)) {
+            throw new IllegalArgumentException("Generic class can not be null");
+        }
+        Type t = genericClass.getGenericSuperclass();
+        if (t instanceof ParameterizedType parameterizedType) {
+            Type[] actualTypes = parameterizedType.getActualTypeArguments();
+            Objects.checkIndex(index, actualTypes.length);
+            return (Class<?>) actualTypes[index];
+        }
+        return null;
     }
 }

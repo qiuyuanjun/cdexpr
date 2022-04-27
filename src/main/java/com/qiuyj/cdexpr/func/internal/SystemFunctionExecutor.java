@@ -1,9 +1,8 @@
 package com.qiuyj.cdexpr.func.internal;
 
-import com.qiuyj.cdexpr.func.AbstractFunctionExecutor;
-import com.qiuyj.cdexpr.func.internal.prototype.DateFormatFunctionPrototype;
-import com.qiuyj.cdexpr.func.internal.prototype.NowDateFunctionPrototype;
-import com.qiuyj.cdexpr.func.internal.prototype.NowDateTimeFunctionPrototype;
+import com.qiuyj.cdexpr.func.AbstractGenericSupportFunctionExecutor;
+import com.qiuyj.cdexpr.func.FunctionPrototype;
+import com.qiuyj.cdexpr.func.internal.prototype.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,7 +13,7 @@ import java.util.Map;
  * @author qiuyj
  * @since 2022-04-23
  */
-public class SystemFunctionExecutor extends AbstractFunctionExecutor<SystemFunctionPrototype> {
+public class SystemFunctionExecutor extends AbstractGenericSupportFunctionExecutor<SystemFunctionPrototype> {
 
     private static final Map<String, SystemFunctionPrototype> SYSTEM_FUNCTIONS;
     static {
@@ -22,6 +21,8 @@ public class SystemFunctionExecutor extends AbstractFunctionExecutor<SystemFunct
         registerInternal(new DateFormatFunctionPrototype(), temp);
         registerInternal(new NowDateFunctionPrototype(), temp);
         registerInternal(new NowDateTimeFunctionPrototype(), temp);
+        registerInternal(new FirstNotNullFunctionPrototype(), temp);
+        registerInternal(new FirstNotEmptyStringFunctionPrototype(), temp);
         SYSTEM_FUNCTIONS = Collections.unmodifiableMap(temp);
     }
 
@@ -30,7 +31,7 @@ public class SystemFunctionExecutor extends AbstractFunctionExecutor<SystemFunct
     }
 
     @Override
-    public SystemFunctionPrototype getFunctionPrototype(String functionName, Object... parameters) {
+    public FunctionPrototype getFunctionPrototype(String functionName, Object... parameters) {
         return SYSTEM_FUNCTIONS.get(functionName);
     }
 
