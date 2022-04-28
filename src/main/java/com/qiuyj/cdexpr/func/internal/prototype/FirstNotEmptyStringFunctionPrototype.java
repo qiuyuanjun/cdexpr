@@ -21,7 +21,7 @@ public class FirstNotEmptyStringFunctionPrototype extends SystemFunctionPrototyp
     @Override
     public Object call(Object... args) {
         for (Object arg : args) {
-            if (Objects.nonNull(arg) && arg instanceof String s && !s.isEmpty()) {
+            if (arg instanceof String s && !s.isEmpty()) {
                 return arg;
             }
         }

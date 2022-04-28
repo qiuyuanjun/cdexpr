@@ -51,7 +51,7 @@ public abstract class ClassUtils {
      * @param actual 实际的值
      * @return 如果能匹配上，那么返回{@code true}，否则返回{@code false}
      */
-    public static boolean parameterTypeMatch(Class<?> expect, Object actual) {
+    public static boolean typeValueMatch(Class<?> expect, Object actual) {
         if (Objects.isNull(actual)) {
             return !expect.isPrimitive();
         }
@@ -74,9 +74,7 @@ public abstract class ClassUtils {
     }
 
     public static Class<?> getGenericActualType(Class<?> genericClass, int index) {
-        if (Objects.isNull(genericClass)) {
-            throw new IllegalArgumentException("Generic class can not be null");
-        }
+        Objects.requireNonNull(genericClass, "Generic class can not be null");
         Type t = genericClass.getGenericSuperclass();
         if (t instanceof ParameterizedType parameterizedType) {
             Type[] actualTypes = parameterizedType.getActualTypeArguments();

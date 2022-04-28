@@ -38,7 +38,7 @@ public abstract class SystemFunctionPrototype implements FunctionPrototype {
     @SuppressWarnings("unchecked")
     protected <T> T checkTypeAndGetFromArgs(int i, Class<T> required, Object... args) {
         Object parameter = args[Objects.checkIndex(i, args.length)];
-        if (!ClassUtils.parameterTypeMatch(required, parameter)) {
+        if (!ClassUtils.typeValueMatch(required, parameter)) {
             throw new IllegalArgumentException("Parameter type mismatch, require " + required.getName() + ", but actual is " + (Objects.isNull(parameter) ? "null" : parameter.getClass().getName()));
         }
         return (T) parameter;

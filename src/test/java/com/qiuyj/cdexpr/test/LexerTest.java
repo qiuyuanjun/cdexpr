@@ -41,7 +41,10 @@ public class LexerTest {
         System.out.println(FunctionExecutorChain.callFunction("FirstNotEmptyString", null, "", "abc"));
 
 
-        Assertions.assertTrue(ClassUtils.parameterTypeMatch(int.class, 5));
-        Assertions.assertTrue(ClassUtils.parameterTypeMatch(CharSequence.class, "abc"));
+        Assertions.assertTrue(ClassUtils.typeValueMatch(int.class, 5));
+        Assertions.assertTrue(ClassUtils.typeValueMatch(CharSequence.class, "abc"));
+
+        int[] intArr = { 1, 2 };
+        Assertions.assertTrue(ClassUtils.typeValueMatch(int[].class, intArr));
     }
 }

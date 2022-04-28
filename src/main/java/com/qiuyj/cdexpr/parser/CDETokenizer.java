@@ -20,47 +20,29 @@ public record CDETokenizer(InternalCharStream source) {
     public Token processOne() {
         char c = skipWhitespaceUntil();
         int startPos = pos();
-        Token token = null;
+        Token token;
         if (ParserUtils.isIdentifierStart(c)) {
             token = callFunctionAndFallbackOneChar(startPos, this::tryLexIdentifier);
         }
         else {
-            switch (c) {
-                case Character.MIN_VALUE:
-                    return null;
-                case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-                    token = callFunctionAndFallbackOneChar(startPos, this::tryLexNumericLiteral);
-                    break;
-                case ',':
-                    token = new Token(TokenKind.COMMA, startPos, startPos);
-                    break;
-                case ':':
-                    token = new Token(TokenKind.COLON, startPos, startPos);
-                    break;
-                case '?':
-                    token = new Token(TokenKind.QMARK, startPos, startPos);
-                    break;
-                case '(':
-                    token = new Token(TokenKind.LPAREN, startPos, startPos);
-                    break;
-                case ')':
-                    token = new Token(TokenKind.RPAREN, startPos, startPos);
-                    break;
-                case '\'':
-                    token = tryLexStringLiteral(startPos);
-                    break;
-                case '=':
-                    token = new Token(nextCharIs('=') ? TokenKind.EQ : TokenKind.ASSIGN, startPos, pos());
-                    break;
-                case '+':
-                    token = new Token(nextCharIs('+') ? TokenKind.INC : TokenKind.PLUS, startPos, pos());
-                    break;
-                case '-':
-                    token = new Token(nextCharIs('-') ? TokenKind.DEC : TokenKind.MINUS, startPos, pos());
-                    break;
-                default:
+            token = switch (c) {
+                case Character.MIN_VALUE -> null;
+                case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ->
+                        callFunctionAndFallbackOneChar(startPos, this::tryLexNumericLiteral);
+                case ',' -> new Token(TokenKind.COMMA, startPos, startPos);
+                case ':' -> new Token(TokenKind.COLON, startPos, startPos);
+                case '?' -> new Token(TokenKind.QMARK, startPos, startPos);
+                case '(' -> new Token(TokenKind.LPAREN, startPos, startPos);
+                case ')' -> new Token(TokenKind.RPAREN, startPos, startPos);
+                case '\'' -> tryLexStringLiteral(startPos);
+                case '=' -> new Token(nextCharIs('=') ? TokenKind.EQ : TokenKind.ASSIGN, startPos, pos());
+                case '+' -> new Token(nextCharIs('+') ? TokenKind.INC : TokenKind.PLUS, startPos, pos());
+                case '-' -> new Token(nextCharIs('-') ? TokenKind.DEC : TokenKind.MINUS, startPos, pos());
+                default -> {
                     lexError("unexpect char '" + c + "'", startPos);
-            }
+                    yield null;
+                }
+            };
         }
         return token;
     }

@@ -35,7 +35,7 @@ public class InvocableFunctionExecutor extends AbstractGenericSupportFunctionExe
                     for (int i = 0; i < length; i++) {
                         Class<?> expectType = parameterTypes[i];
                         Object actual = parameters[i];
-                        if (!ClassUtils.parameterTypeMatch(expectType, actual)) {
+                        if (!ClassUtils.typeValueMatch(expectType, actual)) {
                             match = false;
                             break;
                         }
