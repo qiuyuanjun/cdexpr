@@ -1,6 +1,5 @@
 package com.qiuyj.cdexpr.test;
 
-import com.qiuyj.cdexpr.func.FunctionExecutor;
 import com.qiuyj.cdexpr.func.FunctionExecutorChain;
 import com.qiuyj.cdexpr.parser.CDEScanner;
 import com.qiuyj.cdexpr.parser.Lexer;

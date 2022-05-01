@@ -14,14 +14,11 @@ expression -> unary_expr
     | ternary_expr;
 
 unary_expr -> unary_operator_start identifier
-    | identifier unary_operator_end
-    | function_call;
+    | identifier unary_operator_end;
 
-unary_operator_start -> '-' | + | ++ | -- | ! | ^ | ~;
+unary_operator_start -> '-' | '+' | '++' | '--' | '!' | '^' | '~';
 
 unary_operator_end -> ++ | --;
-
-function_call -> identifier "(" [identifier [,]]* ")";
 
 binary_expr -> expression binary_operator expression;
 

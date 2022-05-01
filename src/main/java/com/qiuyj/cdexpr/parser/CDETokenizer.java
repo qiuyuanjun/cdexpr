@@ -34,6 +34,8 @@ public record CDETokenizer(InternalCharStream source) {
                 case '?' -> new Token(TokenKind.QMARK, startPos, startPos);
                 case '(' -> new Token(TokenKind.LPAREN, startPos, startPos);
                 case ')' -> new Token(TokenKind.RPAREN, startPos, startPos);
+                case '{' -> new Token(TokenKind.LBRACE, startPos, startPos);
+                case '}' -> new Token(TokenKind.RBRACE, startPos, startPos);
                 case '\'' -> tryLexStringLiteral(startPos);
                 case '=' -> new Token(nextCharIs('=') ? TokenKind.EQ : TokenKind.ASSIGN, startPos, pos());
                 case '+' -> new Token(nextCharIs('+') ? TokenKind.INC : TokenKind.PLUS, startPos, pos());
