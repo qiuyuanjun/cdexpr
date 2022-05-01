@@ -10,6 +10,8 @@ public enum TokenKind {
     STRING_LITERAL,     // 字符串字面量
     NUMERIC_LITERAL,    // 数字字面量
     EQ("=="),
+    NEQ("!="),
+    NOT("!"),
     ASSIGN("="),
     QMARK("?"),
     COLON(":"),
@@ -20,6 +22,8 @@ public enum TokenKind {
     DEC("--"),
     LPAREN("("),
     RPAREN(")"),
+    LBRACE("{"),
+    RBRACE("}"),
 
     UNDEFINED,
     ;

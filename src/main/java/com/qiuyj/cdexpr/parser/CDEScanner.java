@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * 默认的词法解析器，会根据输入的字符流，解析成对应的token流
@@ -61,4 +62,19 @@ public class CDEScanner implements Lexer {
         }
         return Collections.unmodifiableList(tokenStream);
     }
+
+    @Override
+    public void consumeTokens(Consumer<Token> tokenConsumer) {
+        if (tokenizer.source().remaining()) {
+            while (true) {
+                nextToken();
+                Token token = token();
+                if (Objects.isNull(token)) {
+                    break;
+                }
+                tokenConsumer.accept(token);
+            }
+        }
+    }
+
 }

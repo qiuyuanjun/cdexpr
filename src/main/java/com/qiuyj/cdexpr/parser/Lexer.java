@@ -1,6 +1,7 @@
 package com.qiuyj.cdexpr.parser;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 词法解析器
@@ -20,6 +21,10 @@ public interface Lexer {
      */
     Token token();
 
+    /**
+     * 得到上一个token
+     * @return 上一个token
+     */
     Token prevToken();
 
     /**
@@ -27,4 +32,10 @@ public interface Lexer {
      * @return 解析之后的token集合
      */
     List<Token> nextAllTokens();
+
+    /**
+     * 循环遍历并消费当前的{@code Token}
+     * @param tokenConsumer 消费者
+     */
+    void consumeTokens(Consumer<Token> tokenConsumer);
 }

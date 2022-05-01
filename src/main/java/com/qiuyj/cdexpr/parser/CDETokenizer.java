@@ -38,6 +38,7 @@ public record CDETokenizer(InternalCharStream source) {
                 case '=' -> new Token(nextCharIs('=') ? TokenKind.EQ : TokenKind.ASSIGN, startPos, pos());
                 case '+' -> new Token(nextCharIs('+') ? TokenKind.INC : TokenKind.PLUS, startPos, pos());
                 case '-' -> new Token(nextCharIs('-') ? TokenKind.DEC : TokenKind.MINUS, startPos, pos());
+                case '!' -> new Token(nextCharIs('=') ? TokenKind.NEQ : TokenKind.NOT, startPos, pos());
                 default -> {
                     lexError("unexpect char '" + c + "'", startPos);
                     yield null;
@@ -100,9 +101,10 @@ public record CDETokenizer(InternalCharStream source) {
             break;
         }
         ParserUtils.validNumericEndChar(source.fastPrevChar(), pos(), isLong, isDouble, isFloat);
+        String sourceString = source.fastSubstring(startPos, pos());
         return binary || octal || hex || isLong || isDouble || isFloat
-                ? new Token.NumericToken(ParserUtils.parseNumber(source.fastSubstring(hex || binary ? startPos + 2 : startPos, isLong || isFloat || (maybeDouble && isDouble) ? pos() - 1 : pos()), binary, octal, hex, isLong, isDouble, isFloat), startPos, pos() - 1)
-                : new Token.NumericToken(Integer.parseInt(source.fastSubstring(startPos, pos())), startPos, pos() - 1);
+                ? new Token.NumericToken(ParserUtils.parseNumber(source.fastSubstring(hex || binary ? startPos + 2 : startPos, isLong || isFloat || (maybeDouble && isDouble) ? pos() - 1 : pos()), binary, octal, hex, isLong, isDouble, isFloat), startPos, pos() - 1, sourceString)
+                : new Token.NumericToken(Integer.parseInt(sourceString), startPos, pos() - 1, sourceString);
     }
 
     private Token tryLexStringLiteral(int startPos) {
@@ -149,6 +151,7 @@ public record CDETokenizer(InternalCharStream source) {
         }
         int endPos = pos() - 1; // identifier end character include
         String identifier = source.fastSubstring(startPos, pos());
+        final String sourceString = identifier;
         if (maybeVariable) {
             if (source.fastCharAt(endPos) != '}') {
                 lexError("expect char '}' at end of typeof variable identifier", endPos);
@@ -158,7 +161,7 @@ public record CDETokenizer(InternalCharStream source) {
             endPos--; // remove '}'
         }
         // todo 判断是否是关键字
-        return new Token.StringToken(identifier, TokenKind.IDENTIFIER, startPos, endPos);
+        return new Token.StringToken(identifier, TokenKind.IDENTIFIER, startPos, endPos, sourceString);
     }
 
     /**

@@ -1,16 +1,28 @@
-CDEXPR:
-    BLOCK
-    STATEMENT
-    EXPRESSION
+TOKEN (
+    EQ -> '==',
+    NEQ -> '!=',
+    NOT -> '!',
+    ASSIGN -> '=',
+    QMARK -> '?',
+    COLON -> ':'
+)
 
-ExpressionStatement:
-    StatementExpression;
+cdexpr -> expression | block;
 
-StatementExpression:
-    Assignment
-    PreIncrementExpression
-    PreDecrementExpression
-    PostIncrementExpression
-    PostDecrementExpression
-    MethodInvocation
-    ClassInstanceCreationExpression
+expression -> unary_expr
+    | binary_expr
+    | ternary_expr;
+
+unary_expr -> unary_operator_start identifier
+    | identifier unary_operator_end
+    | function_call;
+
+unary_operator_start -> '-' | + | ++ | -- | ! | ^ | ~;
+
+unary_operator_end -> ++ | --;
+
+function_call -> identifier "(" [identifier [,]]* ")";
+
+binary_expr -> expression binary_operator expression;
+
+ternary_expr -> expression QMARK expression COLON expression;
