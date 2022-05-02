@@ -3,13 +3,16 @@ package com.qiuyj.cdexpr.parser;
 import com.qiuyj.cdexpr.CDExpression;
 import com.qiuyj.cdexpr.ast.ASTree;
 import com.qiuyj.cdexpr.ast.ExpressionASTree;
+import com.qiuyj.cdexpr.ast.OperatorExprASTree;
 import com.qiuyj.cdexpr.ast.impl.CDEFunctionCall;
 import com.qiuyj.cdexpr.ast.impl.CDEIdentifier;
-import com.qiuyj.cdexpr.ast.impl.CDEUnaryExpr;
+import com.qiuyj.cdexpr.ast.impl.CDELiteral;
+import com.qiuyj.cdexpr.ast.impl.CDEUnary;
 import com.qiuyj.cdexpr.utils.ParserUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -46,16 +49,20 @@ public record CDEParser(Lexer lexer) implements Parser {
          * expression -> unary_expr | binary_expr | ternary_expr
          */
         private void parseExpression() {
-            if (!maybeUnaryExpr() || !parseBinaryExpr() || !parseTernaryExpr()) {
+            if (!maybeUnaryExpr() && !maybeBinaryExpr() && !parseTernaryExpr()) {
                 parseError("Can not parse expression");
             }
         }
 
-        private boolean parseTernaryExpr() {
+        private boolean maybeBinaryExpr() {
+            if (Objects.nonNull(ast) && !(ast instanceof ExpressionASTree)) {
+                parseError("If the left value of binary expression is not null, it must be ExpressionASTree");
+            }
+            // 判断是否是二元表达式的操作符
             return false;
         }
 
-        private boolean parseBinaryExpr() {
+        private boolean parseTernaryExpr() {
             return false;
         }
 
@@ -64,19 +71,50 @@ public record CDEParser(Lexer lexer) implements Parser {
          * @return 如果可以解析，那么返回true，否则返回false
          */
         private boolean maybeUnaryExpr() {
-            if (maybePostfixExpr() || maybePrefixExpr()) {
-                if (ast instanceof ExpressionASTree expr) {
-                    ast = new CDEUnaryExpr(expr);
-                }
-                else {
+            if (maybePostfixExpr()
+                    || maybePrefixExpr()
+                    || maybeIdentifier()
+                    || maybeLiteral()) {
+                if (!(ast instanceof ExpressionASTree)) {
                     parseError("Unary expression mismatch");
+                }
+                if (!(ast instanceof CDEUnary)) {
+                    ast = new CDEUnary((ExpressionASTree) ast, OperatorExprASTree.OperatorType.NONE);
                 }
                 return true;
             }
             return false;
         }
 
+        private boolean maybeLiteral() {
+            Token token = token();
+            TokenKind kind = token.getKind();
+            boolean isNumeric;
+            if ((isNumeric = kind == TokenKind.NUMERIC_LITERAL) || kind == TokenKind.STRING_LITERAL) {
+                ast = isNumeric
+                        ? new CDELiteral(((Token.NumericToken) token).getNumeric())
+                        : new CDELiteral(((Token.StringToken) token).getStringVal());
+                return true;
+            }
+            return false;
+        }
+
+        private boolean maybeIdentifier() {
+            Token token = token();
+            if (token.getKind() == TokenKind.IDENTIFIER) {
+                ast = new CDEIdentifier(((Token.StringToken) token).getStringVal(), true);
+                return true;
+            }
+            return false;
+        }
+
         private boolean maybePrefixExpr() {
+            Token token = token();
+            TokenKind kind = token.getKind();
+            if (kind == TokenKind.INC || kind == TokenKind.DEC || kind == TokenKind.NOT) {
+
+                return true;
+            }
             return false;
         }
 
@@ -98,9 +136,11 @@ public record CDEParser(Lexer lexer) implements Parser {
             }
             else {
                 TokenKind kind = token.getKind();
-                if (kind == TokenKind.INC || kind == TokenKind.DEC) {
-
+                if (kind != TokenKind.INC && kind != TokenKind.DEC) {
+                    CDEParser.this.lexer.setPushedBack();
+                    return false;
                 }
+                ast = new CDEUnary(null, null);
             }
             return true;
         }
@@ -108,13 +148,15 @@ public record CDEParser(Lexer lexer) implements Parser {
         private List<? extends ExpressionASTree> parseAndGetArgumentList() {
             ASTree originAst = ast;
             List<ExpressionASTree> arguments = new ArrayList<>();
-            Token token;
             do {
+                Token token = nextToken();
+                if (Objects.isNull(token) || token.getKind() == TokenKind.RPAREN) {
+                    break;
+                }
                 this.parseExpression();
                 arguments.add((ExpressionASTree) ast);
-                token = nextToken();
             }
-            while (token.getKind() == TokenKind.COMMA);
+            while (nextToken().getKind() == TokenKind.COMMA);
             if (token().getKind() != TokenKind.RPAREN) {
                 parseError("Function call must ends with ')");
             }

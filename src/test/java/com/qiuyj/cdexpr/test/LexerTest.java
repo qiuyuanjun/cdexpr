@@ -1,10 +1,7 @@
 package com.qiuyj.cdexpr.test;
 
 import com.qiuyj.cdexpr.func.FunctionExecutorChain;
-import com.qiuyj.cdexpr.parser.CDEScanner;
-import com.qiuyj.cdexpr.parser.Lexer;
-import com.qiuyj.cdexpr.parser.Token;
-import com.qiuyj.cdexpr.parser.TokenKind;
+import com.qiuyj.cdexpr.parser.*;
 import com.qiuyj.cdexpr.utils.ClassUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -45,5 +42,9 @@ public class LexerTest {
 
         int[] intArr = { 1, 2 };
         Assertions.assertTrue(ClassUtils.typeValueMatch(int[].class, intArr));
+
+        expr = "json_get(${INPUT_CONTENT}, 'busiEntityCity', ++${CITY_CODE})";
+        Parser parser = new CDEParser(new CDEScanner(expr));
+        parser.parseExpression();
     }
 }

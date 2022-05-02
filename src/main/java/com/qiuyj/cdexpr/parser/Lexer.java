@@ -38,4 +38,6 @@ public interface Lexer {
      * @param tokenConsumer 消费者
      */
     void consumeTokens(Consumer<Token> tokenConsumer);
+
+    void setPushedBack();
 }

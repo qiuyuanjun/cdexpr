@@ -27,12 +27,18 @@ public class CDEScanner implements Lexer {
      */
     private final List<Token> tokenStream = new ArrayList<>();
 
+    private boolean pushedBack;
+
     public CDEScanner(String source) {
         tokenizer = new CDETokenizer(InternalCharStream.wrap(source));
     }
 
     @Override
     public void nextToken() {
+        if (pushedBack) {
+            pushedBack = false;
+            return;
+        }
         Token curToken = tokenizer.processOne();
         if (Objects.nonNull(token)) {
             tokenStream.add(token);
@@ -42,6 +48,10 @@ public class CDEScanner implements Lexer {
 
     @Override
     public Token token() {
+        if (pushedBack) {
+            // 直接返回上一个
+            return prevToken();
+        }
         return token;
     }
 
@@ -75,6 +85,11 @@ public class CDEScanner implements Lexer {
                 tokenConsumer.accept(token);
             }
         }
+    }
+
+    @Override
+    public void setPushedBack() {
+        pushedBack = true;
     }
 
 }
