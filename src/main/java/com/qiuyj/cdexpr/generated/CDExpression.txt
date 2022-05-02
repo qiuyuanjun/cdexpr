@@ -1,25 +1,26 @@
-TOKEN (
-    EQ -> '==',
-    NEQ -> '!=',
-    NOT -> '!',
-    ASSIGN -> '=',
-    QMARK -> '?',
-    COLON -> ':'
-)
-
 cdexpr -> expression | block;
 
 expression -> unary_expr
     | binary_expr
     | ternary_expr;
 
-unary_expr -> unary_operator_start identifier
-    | identifier unary_operator_end;
+unary_expr -> prefix_expr
+    | postfix_expr
+    | identifier
+    | literal;
 
-unary_operator_start -> '-' | '+' | '++' | '--' | '!' | '^' | '~';
-
-unary_operator_end -> ++ | --;
+prefix_expr -> { NOT | INC | DEC } identifier;
+postfix_expr -> identifier { INC | DEC }
 
 binary_expr -> expression binary_operator expression;
 
 ternary_expr -> expression QMARK expression COLON expression;
+
+EQ -> '==';
+NEQ -> '!=';
+NOT -> '!';
+ASSIGN -> '=';
+QMARK -> '?';
+COLON -> ':';
+INC -> '++';
+DEC -> '--';

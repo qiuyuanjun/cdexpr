@@ -3,8 +3,13 @@ package com.qiuyj.cdexpr.parser;
 import com.qiuyj.cdexpr.CDExpression;
 import com.qiuyj.cdexpr.ast.ASTree;
 import com.qiuyj.cdexpr.ast.ExpressionASTree;
+import com.qiuyj.cdexpr.ast.impl.CDEFunctionCall;
+import com.qiuyj.cdexpr.ast.impl.CDEIdentifier;
+import com.qiuyj.cdexpr.ast.impl.CDEUnaryExpr;
 import com.qiuyj.cdexpr.utils.ParserUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -41,7 +46,7 @@ public record CDEParser(Lexer lexer) implements Parser {
          * expression -> unary_expr | binary_expr | ternary_expr
          */
         private void parseExpression() {
-            if (!parseUnaryExpr() || !parseBinaryExpr() || !parseTernaryExpr()) {
+            if (!maybeUnaryExpr() || !parseBinaryExpr() || !parseTernaryExpr()) {
                 parseError("Can not parse expression");
             }
         }
@@ -58,8 +63,63 @@ public record CDEParser(Lexer lexer) implements Parser {
          * 解析一元表达式
          * @return 如果可以解析，那么返回true，否则返回false
          */
-        private boolean parseUnaryExpr() {
+        private boolean maybeUnaryExpr() {
+            if (maybePostfixExpr() || maybePrefixExpr()) {
+                if (ast instanceof ExpressionASTree expr) {
+                    ast = new CDEUnaryExpr(expr);
+                }
+                else {
+                    parseError("Unary expression mismatch");
+                }
+                return true;
+            }
             return false;
+        }
+
+        private boolean maybePrefixExpr() {
+            return false;
+        }
+
+        private boolean maybePostfixExpr() {
+            Token token = token();
+            if (token.getKind() != TokenKind.IDENTIFIER) {
+                return false;
+            }
+            String name = ((Token.StringToken) token).getStringVal();
+            String sourceString = token.getSourceString();
+            token = nextToken();
+            if (name.equals(sourceString) && token.getKind() == TokenKind.LPAREN) {
+                // 函数，继续解析参数列表
+                List<? extends ExpressionASTree> arguments = parseAndGetArgumentList();
+                ast = new CDEFunctionCall(new CDEIdentifier(name, false), arguments);
+            }
+            else if (name.equals(sourceString)) {
+                parseError("Variable name must be between '${' and '}'");
+            }
+            else {
+                TokenKind kind = token.getKind();
+                if (kind == TokenKind.INC || kind == TokenKind.DEC) {
+
+                }
+            }
+            return true;
+        }
+
+        private List<? extends ExpressionASTree> parseAndGetArgumentList() {
+            ASTree originAst = ast;
+            List<ExpressionASTree> arguments = new ArrayList<>();
+            Token token;
+            do {
+                this.parseExpression();
+                arguments.add((ExpressionASTree) ast);
+                token = nextToken();
+            }
+            while (token.getKind() == TokenKind.COMMA);
+            if (token().getKind() != TokenKind.RPAREN) {
+                parseError("Function call must ends with ')");
+            }
+            ast = originAst;
+            return arguments;
         }
 
         private void parseBlock() {
