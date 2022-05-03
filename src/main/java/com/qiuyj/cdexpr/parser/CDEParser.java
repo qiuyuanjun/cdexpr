@@ -75,7 +75,7 @@ public record CDEParser(Lexer lexer) implements Parser {
                     || maybePrefixExpr()
                     || maybeIdentifier()
                     || maybeLiteral()) {
-                if (!(ast instanceof ExpressionASTree)) {
+                if (Objects.isNull(ast) || !(ast instanceof ExpressionASTree)) {
                     parseError("Unary expression mismatch");
                 }
                 if (!(ast instanceof CDEUnary)) {
@@ -112,7 +112,12 @@ public record CDEParser(Lexer lexer) implements Parser {
             Token token = token();
             TokenKind kind = token.getKind();
             if (kind == TokenKind.INC || kind == TokenKind.DEC || kind == TokenKind.NOT) {
-
+                token = nextToken();
+                if (token.getKind() != TokenKind.IDENTIFIER) {
+                    parseError("Prefix expression must ends with identifier");
+                }
+                ast = new CDEUnary(new CDEIdentifier(((Token.StringToken) token).getStringVal(), true),
+                        OperatorExprASTree.OperatorType.fromTokenKind(true, kind));
                 return true;
             }
             return false;
@@ -140,7 +145,8 @@ public record CDEParser(Lexer lexer) implements Parser {
                     CDEParser.this.lexer.setPushedBack();
                     return false;
                 }
-                ast = new CDEUnary(null, null);
+                ast = new CDEUnary(new CDEIdentifier(name, true),
+                        OperatorExprASTree.OperatorType.fromTokenKind(false, kind));
             }
             return true;
         }
@@ -148,8 +154,9 @@ public record CDEParser(Lexer lexer) implements Parser {
         private List<? extends ExpressionASTree> parseAndGetArgumentList() {
             ASTree originAst = ast;
             List<ExpressionASTree> arguments = new ArrayList<>();
+            Token token;
             do {
-                Token token = nextToken();
+                token = nextToken();
                 if (Objects.isNull(token) || token.getKind() == TokenKind.RPAREN) {
                     break;
                 }
@@ -177,12 +184,13 @@ public record CDEParser(Lexer lexer) implements Parser {
 
         /**
          * 获取下一个{@code Token}
-         * @return 下一个token，可能为null
+         * @return 下一个token
          */
         private Token nextToken() {
             Lexer lexer = CDEParser.this.lexer;
             lexer.nextToken();
-            return lexer.token();
+            Token token = lexer.token();
+            return Objects.nonNull(token) ? token : Token.DUMMY;
         }
 
         private Token token() {

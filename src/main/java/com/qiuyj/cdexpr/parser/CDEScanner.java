@@ -48,11 +48,10 @@ public class CDEScanner implements Lexer {
 
     @Override
     public Token token() {
-        if (pushedBack) {
-            // 直接返回上一个
-            return prevToken();
-        }
-        return token;
+        // 如果设置了pushedBack标志，那么直接返回上一个
+        return pushedBack
+                ? prevToken()
+                : token;
     }
 
     @Override

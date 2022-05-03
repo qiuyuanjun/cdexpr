@@ -1,5 +1,7 @@
 package com.qiuyj.cdexpr.ast;
 
+import com.qiuyj.cdexpr.parser.TokenKind;
+
 /**
  * @author qiuyj
  * @since 2022-05-03
@@ -14,7 +16,20 @@ public abstract class OperatorExprASTree {
     public enum OperatorType {
 
         NONE,
+        PREINC,
+        PREDEC,
+        POSTINC,
+        POSTDEC,
+        NOT;
 
+        public static OperatorType fromTokenKind(boolean prefix, TokenKind kind) {
+            return switch (kind) {
+                case INC -> prefix ? PREINC : POSTINC;
+                case DEC -> prefix ? PREDEC : POSTDEC;
+                case NOT -> NOT;
+                default -> NONE;
+            };
+        }
     }
 
     /**
