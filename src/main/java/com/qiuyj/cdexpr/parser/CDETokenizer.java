@@ -36,11 +36,17 @@ public record CDETokenizer(InternalCharStream source) {
                 case ')' -> new Token(TokenKind.RPAREN, startPos, startPos);
                 case '{' -> new Token(TokenKind.LBRACE, startPos, startPos);
                 case '}' -> new Token(TokenKind.RBRACE, startPos, startPos);
+                case '*' -> new Token(TokenKind.MUL, startPos, startPos);
+                case '/' -> new Token(TokenKind.DIV, startPos, startPos);
                 case '\'' -> tryLexStringLiteral(startPos);
                 case '=' -> new Token(nextCharIs('=') ? TokenKind.EQ : TokenKind.ASSIGN, startPos, pos());
                 case '+' -> new Token(nextCharIs('+') ? TokenKind.INC : TokenKind.PLUS, startPos, pos());
                 case '-' -> new Token(nextCharIs('-') ? TokenKind.DEC : TokenKind.MINUS, startPos, pos());
-                case '!' -> new Token(nextCharIs('=') ? TokenKind.NEQ : TokenKind.NOT, startPos, pos());
+                case '!' -> new Token(nextCharIs('=') ? TokenKind.NEQ : TokenKind.BANG, startPos, pos());
+                case '>' -> new Token(nextCharIs('=') ? TokenKind.GTEQ : TokenKind.GT, startPos, pos());
+                case '<' -> new Token(nextCharIs('=') ? TokenKind.LTEQ : TokenKind.LT, startPos, pos());
+                case '&' -> new Token(nextCharIs('&') ? TokenKind.AMPAMP : TokenKind.AMP, startPos, pos());
+                case '|' -> new Token(nextCharIs('|') ? TokenKind.BARBAR : TokenKind.BAR, startPos, pos());
                 default -> {
                     lexError("unexpect char '" + c + "'", startPos);
                     yield null;

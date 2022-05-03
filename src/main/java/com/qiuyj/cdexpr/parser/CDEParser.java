@@ -4,13 +4,11 @@ import com.qiuyj.cdexpr.CDExpression;
 import com.qiuyj.cdexpr.ast.ASTree;
 import com.qiuyj.cdexpr.ast.ExpressionASTree;
 import com.qiuyj.cdexpr.ast.OperatorExprASTree;
-import com.qiuyj.cdexpr.ast.impl.CDEFunctionCall;
-import com.qiuyj.cdexpr.ast.impl.CDEIdentifier;
-import com.qiuyj.cdexpr.ast.impl.CDELiteral;
-import com.qiuyj.cdexpr.ast.impl.CDEUnary;
+import com.qiuyj.cdexpr.ast.impl.*;
 import com.qiuyj.cdexpr.utils.ParserUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -50,25 +48,54 @@ public record CDEParser(Lexer lexer) implements Parser {
          * expression -> unary_expr | binary_expr | ternary_expr
          */
         private void parseExpression() {
-            if (!maybeUnaryExpr() && !maybeBinaryExpr() && !parseTernaryExpr()) {
+            if (!maybeExpression()) {
                 parseError("Can not parse expression");
             }
         }
 
-        private boolean maybeBinaryExpr() {
-            if (Objects.nonNull(ast) && !(ast instanceof ExpressionASTree)) {
-                parseError("If the left value of binary expression is not null, it must be ExpressionASTree");
-            }
-            // 判断是否是二元表达式的操作符
-            return false;
+        /**
+         * 判断并解析表达式
+         * @return 如果是，那么返回{@code true}，否则返回{@code false}
+         */
+        private boolean maybeExpression() {
+            return maybeUnaryExpr() || maybeBinaryExpr() || maybeTernaryExpr();
         }
 
-        private boolean parseTernaryExpr() {
+        private boolean maybeTernaryExpr() {
             return false;
         }
 
         /**
-         * 解析一元表达式
+         * 判断并解析二元表达式
+         * expression binary_operator expression
+         * @return 如果是，那么返回{@code true}，否则返回{@code false}
+         */
+        private boolean maybeBinaryExpr() {
+            boolean hasLeftOperand;
+            if ((hasLeftOperand = Objects.nonNull(ast)) && !(ast instanceof ExpressionASTree)) {
+                parseError("If the left value of binary expression is not null, it must be ExpressionASTree");
+            }
+            // 判断是否是二元表达式的操作符
+            TokenKind kind;
+            if (ParserUtils.isBinaryOperator((kind = token().getKind()))) {
+                if (!hasLeftOperand) {
+                    parseError("Binary expression must has left operand");
+                }
+                final ExpressionASTree left = (ExpressionASTree) ast;
+                final OperatorExprASTree.OperatorType operatorType
+                        = OperatorExprASTree.OperatorType.fromTokenKind(false, kind);
+                // 继续解析操作符后面的表达式
+                nextToken();
+                parseExpression();
+                final ExpressionASTree right = (ExpressionASTree) ast;
+                ast = new CDEBinary(left, right, operatorType);
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * 判断并解析一元表达式
          * @return 如果可以解析，那么返回true，否则返回false
          */
         private boolean maybeUnaryExpr() {
@@ -110,7 +137,7 @@ public record CDEParser(Lexer lexer) implements Parser {
         private boolean maybePrefixExpr() {
             Token token = token();
             TokenKind kind = token.getKind();
-            if (kind == TokenKind.INC || kind == TokenKind.DEC || kind == TokenKind.NOT) {
+            if (kind == TokenKind.INC || kind == TokenKind.DEC || kind == TokenKind.BANG) {
                 token = nextToken();
                 if (token.getKind() != TokenKind.IDENTIFIER) {
                     parseError("Prefix expression must ends with identifier");
@@ -161,17 +188,25 @@ public record CDEParser(Lexer lexer) implements Parser {
          * @return 函数的参数列表
          */
         private List<? extends ExpressionASTree> parseAndGetArgumentList() {
-            List<ExpressionASTree> arguments = new ArrayList<>();
-            do {
-                nextToken();
-                parseExpression();
-                arguments.add((ExpressionASTree) ast);
+            Token token = nextToken();
+            if (token.getKind() == TokenKind.RPAREN) {
+                // 该函数是空参数列表，直接返回
+                return Collections.emptyList();
             }
-            while (nextToken().getKind() == TokenKind.COMMA);
-            if (token().getKind() != TokenKind.RPAREN) {
-                parseError("Function call must ends with ')");
+            else {
+                CDEParser.this.lexer.setPushedBack();
+                List<ExpressionASTree> arguments = new ArrayList<>();
+                do {
+                    nextToken();
+                    parseExpression();
+                    arguments.add((ExpressionASTree) ast);
+                }
+                while (nextToken().getKind() == TokenKind.COMMA);
+                if (token().getKind() != TokenKind.RPAREN) {
+                    parseError("Function call must ends with ')");
+                }
+                return arguments;
             }
-            return arguments;
         }
 
         private <T> T backupASTAndDoAction(Supplier<T> action) {

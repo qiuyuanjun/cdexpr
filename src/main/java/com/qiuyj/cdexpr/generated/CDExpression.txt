@@ -8,18 +8,30 @@ unary_expr -> prefix_expr
     | postfix_expr
     | literal;
 
-prefix_expr -> { NOT | INC | DEC } identifier;
-postfix_expr -> identifier { INC | DEC }?
+prefix_expr -> { BANG | INC | DEC } identifier;
+postfix_expr -> identifier { INC | DEC }?;
 
 binary_expr -> expression binary_operator expression;
+
+binary_operator -> EQ | NEQ | GT | LT | GTEQ | LTEQ | ASSIGN | PLUS | MINUS | AMPAMP | AMP | BARBAR | BAR;
 
 ternary_expr -> expression QMARK expression COLON expression;
 
 EQ -> '==';
 NEQ -> '!=';
-NOT -> '!';
+GT -> '>';
+LT -> '<';
+GTEQ -> '>=';
+LTEQ -> '<=';
+BANG -> '!';
 ASSIGN -> '=';
 QMARK -> '?';
 COLON -> ':';
 INC -> '++';
 DEC -> '--';
+PLUS -> '+';
+MINUS -> '-';
+AMPAMP -> '&&';
+APM -> '&';
+BAR -> '|';
+BARBAR -> '||';

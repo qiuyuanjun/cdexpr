@@ -1,6 +1,7 @@
 package com.qiuyj.cdexpr.utils;
 
 import com.qiuyj.cdexpr.parser.ParseError;
+import com.qiuyj.cdexpr.parser.TokenKind;
 
 /**
  * @author qiuyj
@@ -73,5 +74,17 @@ public abstract class ParserUtils {
             return Float.parseFloat(s);
         }
         throw new IllegalStateException("parse numeric error");
+    }
+
+    /**
+     * 判断当前的token是否是二元表达式支持的操作符
+     * @param kind token类型
+     * @return 如果是，那么返回{@code true}，否则返回{@code false}
+     */
+    public static boolean isBinaryOperator(TokenKind kind) {
+        return switch (kind) {
+            case EQ, NEQ, GT, LT, GTEQ, LTEQ, ASSIGN, PLUS, MINUS, AMP, AMPAMP, BAR, BARBAR -> true;
+            default -> false;
+        };
     }
 }

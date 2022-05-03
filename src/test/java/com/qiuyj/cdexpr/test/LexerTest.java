@@ -46,5 +46,9 @@ public class LexerTest {
         expr = "function_test(${INPUT_CONTENT}, 'busiEntityCity', ++${CITY_CODE})";
         Parser parser = new CDEParser(new CDEScanner(expr));
         parser.parseExpression();
+
+        expr = "function_test2() || function_test3() || function_test4(${ARGUMENT1}, 'argument2')";
+        parser = new CDEParser(new CDEScanner(expr));
+        parser.parseExpression();
     }
 }

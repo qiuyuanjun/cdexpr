@@ -20,13 +20,16 @@ public abstract class OperatorExprASTree {
         PREDEC,
         POSTINC,
         POSTDEC,
-        NOT;
+        BANG,
+        EQ, NEQ, GT, LT, GTEQ, LTEQ, ASSIGN, PLUS, MINUS, AMP, AMPAMP, BAR, BARBAR;
 
         public static OperatorType fromTokenKind(boolean prefix, TokenKind kind) {
             return switch (kind) {
                 case INC -> prefix ? PREINC : POSTINC;
                 case DEC -> prefix ? PREDEC : POSTDEC;
-                case NOT -> NOT;
+                case BANG -> BANG;
+                case EQ, NEQ, GT, LT, GTEQ, LTEQ, ASSIGN, PLUS, MINUS, AMP, AMPAMP, BAR, BARBAR
+                        -> OperatorType.valueOf(kind.name());
                 default -> NONE;
             };
         }
