@@ -73,9 +73,8 @@ public record CDEParser(Lexer lexer) implements Parser {
          */
         private boolean maybeUnaryExpr() {
             if (maybePostfixExpr()
-                    || maybePrefixExpr()
-                    || maybeIdentifier()
-                    || maybeLiteral()) {
+                    || maybeLiteral()
+                    || maybePrefixExpr()) {
                 if (Objects.isNull(ast) || !(ast instanceof ExpressionASTree)) {
                     parseError("Unary expression mismatch");
                 }
@@ -99,19 +98,6 @@ public record CDEParser(Lexer lexer) implements Parser {
                 ast = isNumeric
                         ? new CDELiteral(((Token.NumericToken) token).getNumeric())
                         : new CDELiteral(((Token.StringToken) token).getStringVal());
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * 判断并解析标识符
-         * @return 如果是标识符，那么返回{@code true}，否则返回{@code false}
-         */
-        private boolean maybeIdentifier() {
-            Token token = token();
-            if (token.getKind() == TokenKind.IDENTIFIER) {
-                ast = new CDEIdentifier(((Token.StringToken) token).getStringVal(), true);
                 return true;
             }
             return false;
@@ -160,10 +146,12 @@ public record CDEParser(Lexer lexer) implements Parser {
                 TokenKind kind = token.getKind();
                 if (kind != TokenKind.INC && kind != TokenKind.DEC) {
                     CDEParser.this.lexer.setPushedBack();
-                    return false;
+                    ast = new CDEIdentifier(((Token.StringToken) token()).getStringVal(), true);
                 }
-                ast = new CDEUnary(new CDEIdentifier(name, true),
-                        OperatorExprASTree.OperatorType.fromTokenKind(false, kind));
+                else {
+                    ast = new CDEUnary(new CDEIdentifier(name, true),
+                            OperatorExprASTree.OperatorType.fromTokenKind(false, kind));
+                }
             }
             return true;
         }

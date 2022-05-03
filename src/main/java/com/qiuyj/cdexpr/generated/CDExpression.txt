@@ -6,11 +6,10 @@ expression -> unary_expr
 
 unary_expr -> prefix_expr
     | postfix_expr
-    | identifier
     | literal;
 
 prefix_expr -> { NOT | INC | DEC } identifier;
-postfix_expr -> identifier { INC | DEC }
+postfix_expr -> identifier { INC | DEC }?
 
 binary_expr -> expression binary_operator expression;
 
