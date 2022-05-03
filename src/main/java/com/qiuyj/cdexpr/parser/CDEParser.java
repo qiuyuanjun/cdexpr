@@ -4,7 +4,12 @@ import com.qiuyj.cdexpr.CDExpression;
 import com.qiuyj.cdexpr.ast.ASTree;
 import com.qiuyj.cdexpr.ast.ExpressionASTree;
 import com.qiuyj.cdexpr.ast.OperatorExprASTree;
-import com.qiuyj.cdexpr.ast.impl.*;
+import com.qiuyj.cdexpr.ast.impl.CDEBinary;
+import com.qiuyj.cdexpr.ast.impl.CDEFunctionCall;
+import com.qiuyj.cdexpr.ast.impl.CDEIdentifier;
+import com.qiuyj.cdexpr.ast.impl.CDELiteral;
+import com.qiuyj.cdexpr.ast.impl.CDETernary;
+import com.qiuyj.cdexpr.ast.impl.CDEUnary;
 import com.qiuyj.cdexpr.utils.ParserUtils;
 
 import java.util.ArrayList;
@@ -61,8 +66,41 @@ public record CDEParser(Lexer lexer) implements Parser {
             return maybeUnaryExpr() || maybeBinaryExpr() || maybeTernaryExpr();
         }
 
+        /**
+         * 判断并解析三元表达式
+         * condition ? trueExpression : falseExpression
+         * @return 如果是，那么返回{@code true}，否则返回{@code false}
+         */
         private boolean maybeTernaryExpr() {
+            boolean hasCondition;
+            if ((hasCondition = Objects.nonNull(ast)) && !(ast instanceof ExpressionASTree)) {
+                parseError("If the condition value of ternary expression is not null, it must be ExpressionASTree");
+            }
+            if (token().getKind() == TokenKind.QMARK) {
+                if (!hasCondition) {
+                    parseError("Ternary expression must has condition");
+                }
+                final ExpressionASTree condition = (ExpressionASTree) ast;
+                // 解析trueExpression
+                final ExpressionASTree trueExpression = parseNextExpression();
+                if (nextToken().getKind() != TokenKind.COLON) {
+                    parseError("Ternary expression error, must has ':' part");
+                }
+                final ExpressionASTree falseExpression = parseNextExpression();
+                ast = new CDETernary(condition, trueExpression, falseExpression);
+                return true;
+            }
             return false;
+        }
+
+        /**
+         * 解析并返回下一个expression
+         * @return 解析成功的expression对象
+         */
+        private ExpressionASTree parseNextExpression() {
+            nextToken();
+            parseExpression();
+            return (ExpressionASTree) ast;
         }
 
         /**
@@ -85,9 +123,7 @@ public record CDEParser(Lexer lexer) implements Parser {
                 final OperatorExprASTree.OperatorType operatorType
                         = OperatorExprASTree.OperatorType.fromTokenKind(false, kind);
                 // 继续解析操作符后面的表达式
-                nextToken();
-                parseExpression();
-                final ExpressionASTree right = (ExpressionASTree) ast;
+                final ExpressionASTree right = parseNextExpression();
                 ast = new CDEBinary(left, right, operatorType);
                 return true;
             }
