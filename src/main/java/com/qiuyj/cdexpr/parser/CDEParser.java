@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * 默认的语法解析器，会根据传入的词法解析器，解析词法，生成对应的抽象语法树
@@ -86,6 +87,10 @@ public record CDEParser(Lexer lexer) implements Parser {
             return false;
         }
 
+        /**
+         * 判断并解析字面量
+         * @return 如果是字面量，那么返回{@code true}，否则返回{@code false}
+         */
         private boolean maybeLiteral() {
             Token token = token();
             TokenKind kind = token.getKind();
@@ -99,6 +104,10 @@ public record CDEParser(Lexer lexer) implements Parser {
             return false;
         }
 
+        /**
+         * 判断并解析标识符
+         * @return 如果是标识符，那么返回{@code true}，否则返回{@code false}
+         */
         private boolean maybeIdentifier() {
             Token token = token();
             if (token.getKind() == TokenKind.IDENTIFIER) {
@@ -108,6 +117,10 @@ public record CDEParser(Lexer lexer) implements Parser {
             return false;
         }
 
+        /**
+         * 判断并解析前缀表达式
+         * @return 如果是前缀表达式，那么返回{@code true}，否则返回{@code false}
+         */
         private boolean maybePrefixExpr() {
             Token token = token();
             TokenKind kind = token.getKind();
@@ -123,6 +136,10 @@ public record CDEParser(Lexer lexer) implements Parser {
             return false;
         }
 
+        /**
+         * 判断并解析后缀表达式
+         * @return 如果是后缀表达式，那么返回{@code true}，否则返回{@code false}
+         */
         private boolean maybePostfixExpr() {
             Token token = token();
             if (token.getKind() != TokenKind.IDENTIFIER) {
@@ -133,7 +150,7 @@ public record CDEParser(Lexer lexer) implements Parser {
             token = nextToken();
             if (name.equals(sourceString) && token.getKind() == TokenKind.LPAREN) {
                 // 函数，继续解析参数列表
-                List<? extends ExpressionASTree> arguments = parseAndGetArgumentList();
+                final List<? extends ExpressionASTree> arguments = backupASTAndDoAction(this::parseAndGetArgumentList);
                 ast = new CDEFunctionCall(new CDEIdentifier(name, false), arguments);
             }
             else if (name.equals(sourceString)) {
@@ -151,24 +168,29 @@ public record CDEParser(Lexer lexer) implements Parser {
             return true;
         }
 
+        /**
+         * 解析函数的参数列表并返回
+         * @return 函数的参数列表
+         */
         private List<? extends ExpressionASTree> parseAndGetArgumentList() {
-            ASTree originAst = ast;
             List<ExpressionASTree> arguments = new ArrayList<>();
-            Token token;
             do {
-                token = nextToken();
-                if (Objects.isNull(token) || token.getKind() == TokenKind.RPAREN) {
-                    break;
-                }
-                this.parseExpression();
+                nextToken();
+                parseExpression();
                 arguments.add((ExpressionASTree) ast);
             }
             while (nextToken().getKind() == TokenKind.COMMA);
             if (token().getKind() != TokenKind.RPAREN) {
                 parseError("Function call must ends with ')");
             }
-            ast = originAst;
             return arguments;
+        }
+
+        private <T> T backupASTAndDoAction(Supplier<T> action) {
+            final ASTree originAst = ast;
+            T result = action.get();
+            ast = originAst;
+            return result;
         }
 
         private void parseBlock() {
@@ -184,7 +206,7 @@ public record CDEParser(Lexer lexer) implements Parser {
 
         /**
          * 获取下一个{@code Token}
-         * @return 下一个token
+         * @return 下一个token，如果下一个token是null，那么默认返回{@link Token#DUMMY}
          */
         private Token nextToken() {
             Lexer lexer = CDEParser.this.lexer;
@@ -193,8 +215,13 @@ public record CDEParser(Lexer lexer) implements Parser {
             return Objects.nonNull(token) ? token : Token.DUMMY;
         }
 
+        /**
+         * 获取当前解析的token
+         * @return 当前解析的token，如果是null，那么默认返回{@link Token#DUMMY}
+         */
         private Token token() {
-            return CDEParser.this.lexer.token();
+            Token token = CDEParser.this.lexer.token();
+            return Objects.nonNull(token) ? token : Token.DUMMY;
         }
 
         private void parseError(String msg) {

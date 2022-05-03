@@ -43,7 +43,7 @@ public class LexerTest {
         int[] intArr = { 1, 2 };
         Assertions.assertTrue(ClassUtils.typeValueMatch(int[].class, intArr));
 
-        expr = "json_get(${INPUT_CONTENT}, 'busiEntityCity', ++${CITY_CODE})";
+        expr = "function_test(${INPUT_CONTENT}, 'busiEntityCity', ++${CITY_CODE})";
         Parser parser = new CDEParser(new CDEScanner(expr));
         parser.parseExpression();
     }
