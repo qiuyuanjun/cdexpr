@@ -233,9 +233,7 @@ public record CDEParser(Lexer lexer) implements Parser {
                 CDEParser.this.lexer.setPushedBack();
                 List<ExpressionASTree> arguments = new ArrayList<>();
                 do {
-                    nextToken();
-                    parseExpression();
-                    arguments.add((ExpressionASTree) ast);
+                    arguments.add(parseNextExpression());
                 }
                 while (nextToken().getKind() == TokenKind.COMMA);
                 if (token().getKind() != TokenKind.RPAREN) {
