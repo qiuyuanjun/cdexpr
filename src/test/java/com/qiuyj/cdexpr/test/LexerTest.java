@@ -1,7 +1,10 @@
 package com.qiuyj.cdexpr.test;
 
-import com.qiuyj.cdexpr.func.FunctionExecutorChain;
-import com.qiuyj.cdexpr.parser.*;
+import com.qiuyj.cdexpr.CDExpression;
+import com.qiuyj.cdexpr.parser.CDEScanner;
+import com.qiuyj.cdexpr.parser.Lexer;
+import com.qiuyj.cdexpr.parser.Token;
+import com.qiuyj.cdexpr.parser.TokenKind;
 import com.qiuyj.cdexpr.utils.ClassUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,10 +36,6 @@ public class LexerTest {
         tokenStream = lexer.nextAllTokens();
         Assertions.assertEquals(8, tokenStream.size());
 
-        System.out.println(FunctionExecutorChain.callFunction("DateFormat", FunctionExecutorChain.callFunction("NowDateTime"), "yyyy-MM-dd HH:mm:ss"));
-        System.out.println(FunctionExecutorChain.callFunction("FirstNotEmptyString", null, "", "abc"));
-
-
         Assertions.assertTrue(ClassUtils.typeValueMatch(int.class, 5));
         Assertions.assertTrue(ClassUtils.typeValueMatch(CharSequence.class, "abc"));
 
@@ -44,19 +43,24 @@ public class LexerTest {
         Assertions.assertTrue(ClassUtils.typeValueMatch(int[].class, intArr));
 
         expr = "function_test(${INPUT_CONTENT}, 'busiEntityCity', ++${CITY_CODE})";
-        Parser parser = new CDEParser(new CDEScanner(expr));
-        parser.parseExpression();
+        CDExpression.newInstance(expr);
 
         expr = "function_test2() || function_test3() || function_test4(${ARGUMENT1}, 'argument2')";
-        parser = new CDEParser(new CDEScanner(expr));
-        parser.parseExpression();
+        CDExpression.newInstance(expr);
 
         expr = "function_test5() + function_test6() == 100 ? function_test7('test_string_literal', 123) : 'hello world'";
-        parser = new CDEParser(new CDEScanner(expr));
-        parser.parseExpression();
+        CDExpression.newInstance(expr);
 
         expr = "USER_SOURCE";
-        parser = new CDEParser(new CDEScanner(expr));
-        parser.parseExpression();
+        CDExpression.newInstance(expr);
+
+        expr = "1 == 2 ? 10 : 5";
+        System.out.println(CDExpression.newInstance(expr).getValue(null));
+
+        expr = "6 + 9 - 100";
+        System.out.println(CDExpression.newInstance(expr).getValue(null));
+
+        expr = "DateFormat(NowDateTime(), 'yyyyMMddHHmmss')";
+        System.out.println(CDExpression.newInstance(expr).getValue(null));
     }
 }

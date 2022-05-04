@@ -1,5 +1,6 @@
 package com.qiuyj.cdexpr.ast.impl;
 
+import com.qiuyj.cdexpr.ExpressionContext;
 import com.qiuyj.cdexpr.ast.BinaryExprASTree;
 import com.qiuyj.cdexpr.ast.ExpressionASTree;
 import com.qiuyj.cdexpr.ast.OperatorExprASTree;
@@ -33,7 +34,12 @@ public class CDEBinary extends OperatorExprASTree implements BinaryExprASTree {
     @Override
     public ExpressionASTree getOperand(OperandPosition position) {
         return position == OperandPosition.LEFT
-                ? leftOperand
-                : rightOperand;
+                ? getLeftOperand()
+                : getRightOperand();
+    }
+
+    @Override
+    public Object getValue(ExpressionContext context) {
+        return getType().operation(this, context);
     }
 }

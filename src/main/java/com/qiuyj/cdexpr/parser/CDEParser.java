@@ -1,6 +1,7 @@
 package com.qiuyj.cdexpr.parser;
 
 import com.qiuyj.cdexpr.CDExpression;
+import com.qiuyj.cdexpr.ExpressionContext;
 import com.qiuyj.cdexpr.ast.ASTree;
 import com.qiuyj.cdexpr.ast.ExpressionASTree;
 import com.qiuyj.cdexpr.ast.OperatorExprASTree;
@@ -115,7 +116,7 @@ public record CDEParser(Lexer lexer) implements Parser {
             }
             // 判断是否是二元表达式的操作符
             TokenKind kind;
-            if (ParserUtils.isBinaryOperator((kind = token().getKind()))) {
+            if (OperatorExprASTree.OperatorType.isBinaryOperator((kind = token().getKind()))) {
                 if (!hasLeftOperand) {
                     parseError("Binary expression must has left operand");
                 }
@@ -262,7 +263,7 @@ public record CDEParser(Lexer lexer) implements Parser {
          * @return 表达式对象
          */
         CDExpression generateExpression() {
-            return null;
+            return new DefaultParsedCDExpression(ast);
         }
 
         /**
@@ -299,6 +300,14 @@ public record CDEParser(Lexer lexer) implements Parser {
         private boolean isSpecialToken(Token token) {
             return token == Token.DUMMY
                     && CDEParser.this.lexer.currentTokenCount() == 1;
+        }
+    }
+
+    private record DefaultParsedCDExpression(ASTree ast) implements CDExpression {
+
+        @Override
+        public Object getValue(ExpressionContext context) {
+            return ast.getValue(context);
         }
     }
 }

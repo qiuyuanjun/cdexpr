@@ -1,7 +1,15 @@
 package com.qiuyj.cdexpr.utils;
 
 import com.qiuyj.cdexpr.parser.ParseError;
-import com.qiuyj.cdexpr.parser.TokenKind;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.DoubleAccumulator;
+import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.atomic.LongAccumulator;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * @author qiuyj
@@ -77,14 +85,90 @@ public abstract class ParserUtils {
     }
 
     /**
-     * 判断当前的token是否是二元表达式支持的操作符
-     * @param kind token类型
-     * @return 如果是，那么返回{@code true}，否则返回{@code false}
+     * 将数字取反
+     * @param value 要取反的数字
+     * @return 取反后的数字
      */
-    public static boolean isBinaryOperator(TokenKind kind) {
-        return switch (kind) {
-            case EQ, NEQ, GT, LT, GTEQ, LTEQ, ASSIGN, PLUS, MINUS, AMP, AMPAMP, BAR, BARBAR -> true;
-            default -> false;
-        };
+    public static Number negate(Number value) {
+        if (value instanceof Integer
+                || value instanceof Short
+                || value instanceof Byte) {
+            return Math.negateExact((int) value);
+        }
+        else if (value instanceof Long longVal) {
+            return Math.negateExact(longVal);
+        }
+        else if (value instanceof Float || value instanceof Double) {
+            return -value.doubleValue();
+        }
+        else if (value instanceof BigDecimal bigDecimalVal) {
+            return bigDecimalVal.negate();
+        }
+        else if (value instanceof BigInteger bigIntegerVal) {
+            return bigIntegerVal.negate();
+        }
+        else if (value instanceof AtomicInteger atomicIntegerVal) {
+            atomicIntegerVal.updateAndGet(Math::negateExact);
+            return atomicIntegerVal;
+        }
+        else if (value instanceof AtomicLong atomicLongVal) {
+            atomicLongVal.updateAndGet(Math::negateExact);
+            return atomicLongVal;
+        }
+        throw new IllegalStateException("Operand does not support negate operation");
+    }
+
+    /**
+     * 将两个数字类型的数据相加
+     * @param value 数字1
+     * @param toBeAdd 相加的数字2
+     * @return 相加后的结果
+     */
+    public static Number numberAdd(Object value, Object toBeAdd) {
+        if (!(value instanceof Number) || !(toBeAdd instanceof Number constantOperand)) {
+            throw new RuntimeException("The operand of the operator must be of type number");
+        }
+        if (value instanceof Integer
+                || value instanceof Short
+                || value instanceof Byte) {
+            return ((int) value) + constantOperand.intValue();
+        }
+        else if (value instanceof Long longVal) {
+            return longVal + constantOperand.longValue();
+        }
+        else if (value instanceof Float || value instanceof Double) {
+            return ((double) value) + constantOperand.doubleValue();
+        }
+        else if (value instanceof BigDecimal bigDecimalVal) {
+            return bigDecimalVal.add(BigDecimal.valueOf(constantOperand.intValue()));
+        }
+        else if (value instanceof BigInteger bigIntegerVal) {
+            return bigIntegerVal.add(BigInteger.valueOf(constantOperand.intValue()));
+        }
+        else if (value instanceof AtomicInteger atomicIntegerVal) {
+            atomicIntegerVal.addAndGet(constantOperand.intValue());
+            return atomicIntegerVal;
+        }
+        else if (value instanceof AtomicLong atomicLongVal) {
+            atomicLongVal.addAndGet(constantOperand.longValue());
+            return atomicLongVal;
+        }
+        else if (value instanceof DoubleAccumulator doubleAccumulatorVal) {
+            doubleAccumulatorVal.accumulate(constantOperand.doubleValue());
+            return doubleAccumulatorVal;
+        }
+        else if (value instanceof LongAccumulator longAccumulatorVal) {
+            longAccumulatorVal.accumulate(constantOperand.longValue());
+            return longAccumulatorVal;
+        }
+        else if (value instanceof DoubleAdder doubleAdderVal) {
+            doubleAdderVal.add(constantOperand.doubleValue());
+            return doubleAdderVal;
+        }
+        else if (value instanceof LongAdder longAdderVal) {
+            longAdderVal.add(constantOperand.longValue());
+            return longAdderVal;
+        }
+        throw new IllegalStateException("Never reach here");
     }
 }

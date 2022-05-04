@@ -1,5 +1,6 @@
 package com.qiuyj.cdexpr.ast.impl;
 
+import com.qiuyj.cdexpr.ExpressionContext;
 import com.qiuyj.cdexpr.ast.ExpressionASTree;
 import com.qiuyj.cdexpr.ast.TernaryExprASTree;
 
@@ -24,5 +25,15 @@ public record CDETernary(ExpressionASTree condition,
     @Override
     public ExpressionASTree getFalseExpression() {
         return falseExpression;
+    }
+
+    @Override
+    public Object getValue(ExpressionContext context) {
+        Object conditionValue = condition.getValue(context);
+        if (!(conditionValue instanceof Boolean)) {
+            throw new RuntimeException("The condition of a ternary expression must be Boolean");
+        }
+        boolean b = (boolean) conditionValue;
+        return b ? trueExpression.getValue(context) : falseExpression.getValue(context);
     }
 }

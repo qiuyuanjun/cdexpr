@@ -1,5 +1,6 @@
 package com.qiuyj.cdexpr.ast.impl;
 
+import com.qiuyj.cdexpr.ExpressionContext;
 import com.qiuyj.cdexpr.ast.LiteralASTree;
 
 import java.math.BigDecimal;
@@ -34,5 +35,10 @@ public class CDELiteral implements LiteralASTree {
 
     public Number getNumeric() {
         return numeric ? (Number) literal : new BigDecimal(getString());
+    }
+
+    @Override
+    public Object getValue(ExpressionContext context) {
+        return literal;
     }
 }

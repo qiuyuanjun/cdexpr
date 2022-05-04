@@ -1,5 +1,6 @@
 package com.qiuyj.cdexpr.ast.impl;
 
+import com.qiuyj.cdexpr.ExpressionContext;
 import com.qiuyj.cdexpr.ast.ExpressionASTree;
 import com.qiuyj.cdexpr.ast.OperatorExprASTree;
 import com.qiuyj.cdexpr.ast.UnaryExprASTree;
@@ -28,5 +29,13 @@ public final class CDEUnary extends OperatorExprASTree implements UnaryExprASTre
     @Override
     public ExpressionASTree getOperand(OperandPosition position) {
         return expression;
+    }
+
+    @Override
+    public Object getValue(ExpressionContext context) {
+        OperatorType type;
+        return (type = getType()) == OperatorType.NONE
+                ? expression.getValue(context)
+                : type.operation(this, context);
     }
 }
