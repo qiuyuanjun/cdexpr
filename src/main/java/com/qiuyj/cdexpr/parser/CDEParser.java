@@ -206,15 +206,13 @@ public record CDEParser(Lexer lexer) implements Parser {
             else if (!isSpecialToken(token) && name.equals(sourceString)) {
                 parseError("Variable name must be between '${' and '}'");
             }
+            else if (kind != TokenKind.INC && kind != TokenKind.DEC) {
+                CDEParser.this.lexer.setPushedBack();
+                ast = new CDEIdentifier(((Token.StringToken) token()).getStringVal(), true);
+            }
             else {
-                if (kind != TokenKind.INC && kind != TokenKind.DEC) {
-                    CDEParser.this.lexer.setPushedBack();
-                    ast = new CDEIdentifier(((Token.StringToken) token()).getStringVal(), true);
-                }
-                else {
-                    ast = new CDEUnary(new CDEIdentifier(name, true),
-                            OperatorExprASTree.OperatorType.fromTokenKind(false, kind));
-                }
+                ast = new CDEUnary(new CDEIdentifier(name, true),
+                        OperatorExprASTree.OperatorType.fromTokenKind(false, kind));
             }
             return true;
         }
