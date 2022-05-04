@@ -197,16 +197,16 @@ public record CDEParser(Lexer lexer) implements Parser {
             String name = ((Token.StringToken) token).getStringVal();
             String sourceString = token.getSourceString();
             token = nextToken();
-            if (name.equals(sourceString) && token.getKind() == TokenKind.LPAREN) {
+            TokenKind kind = token.getKind();
+            if (name.equals(sourceString) && kind == TokenKind.LPAREN) {
                 // 函数，继续解析参数列表
                 final List<? extends ExpressionASTree> arguments = backupASTAndDoAction(this::parseAndGetArgumentList);
                 ast = new CDEFunctionCall(new CDEIdentifier(name, false), arguments);
             }
-            else if (name.equals(sourceString)) {
+            else if (!isSpecialToken(token) && name.equals(sourceString)) {
                 parseError("Variable name must be between '${' and '}'");
             }
             else {
-                TokenKind kind = token.getKind();
                 if (kind != TokenKind.INC && kind != TokenKind.DEC) {
                     CDEParser.this.lexer.setPushedBack();
                     ast = new CDEIdentifier(((Token.StringToken) token()).getStringVal(), true);
@@ -224,12 +224,14 @@ public record CDEParser(Lexer lexer) implements Parser {
          * @return 函数的参数列表
          */
         private List<? extends ExpressionASTree> parseAndGetArgumentList() {
-            Token token = nextToken();
-            if (token.getKind() == TokenKind.RPAREN) {
+            if (nextToken().getKind() == TokenKind.RPAREN) {
                 // 该函数是空参数列表，直接返回
                 return Collections.emptyList();
             }
             else {
+                // 不是空参数，那么需要设置下词法解析器pushedBack状态
+                // 因为已经调用了nextToken已经解析了参数的词法
+                // parseExpression之前再次调用nextToken应该什么都不做
                 CDEParser.this.lexer.setPushedBack();
                 List<ExpressionASTree> arguments = new ArrayList<>();
                 do {
@@ -259,6 +261,10 @@ public record CDEParser(Lexer lexer) implements Parser {
             }
         }
 
+        /**
+         * 根据解析生成的抽象语法树，生成对应的表达式对象
+         * @return 表达式对象
+         */
         CDExpression generateExpression() {
             return null;
         }
@@ -286,6 +292,17 @@ public record CDEParser(Lexer lexer) implements Parser {
         private void parseError(String msg) {
             Token token = token();
             ParserUtils.parseError(msg, token.getStartPos(), token.getEndPos());
+        }
+
+        /**
+         * 判断是否是特殊的token。对于变量，文法规定需要使用在'${'和'}'之间
+         * 但是对于只写了一个变量的表达式，例如"VARIABLE_1"，那么也是允许将"VARIABLE_1"单独解析成IDENTIFIER类型的token的
+         * @param token 要判断的token
+         * @return 如果是特殊的token，那么返回{@code true}，否则返回{@code false}
+         */
+        private boolean isSpecialToken(Token token) {
+            return token == Token.DUMMY
+                    && CDEParser.this.lexer.currentTokenCount() == 1;
         }
     }
 }

@@ -40,4 +40,10 @@ public interface Lexer {
     void consumeTokens(Consumer<Token> tokenConsumer);
 
     void setPushedBack();
+
+    /**
+     * 获取当前解析的token的数量
+     * @return 当前解析的token的数量
+     */
+    int currentTokenCount();
 }

@@ -54,5 +54,9 @@ public class LexerTest {
         expr = "function_test5() + function_test6() == 100 ? function_test7('test_string_literal', 123) : 'hello world'";
         parser = new CDEParser(new CDEScanner(expr));
         parser.parseExpression();
+
+        expr = "USER_SOURCE";
+        parser = new CDEParser(new CDEScanner(expr));
+        parser.parseExpression();
     }
 }

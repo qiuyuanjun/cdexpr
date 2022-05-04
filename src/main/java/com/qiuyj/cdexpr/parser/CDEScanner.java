@@ -91,4 +91,9 @@ public class CDEScanner implements Lexer {
         pushedBack = true;
     }
 
+    @Override
+    public int currentTokenCount() {
+        return tokenStream.size() + (Objects.isNull(token) ? 0 : 1);
+    }
+
 }
